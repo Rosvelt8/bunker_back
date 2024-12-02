@@ -12,9 +12,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('suggestions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->id('idsuggestion');
+            $table->foreignId('order_id')->references('idorder')->on('orders')->cascadeOnDelete();
+            $table->foreignId('user_id')->on('users')->cascadeOnDelete();
             $table->text('content');
             $table->timestamps();
         });

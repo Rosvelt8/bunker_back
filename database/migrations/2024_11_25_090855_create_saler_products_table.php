@@ -9,19 +9,22 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('order_products', function (Blueprint $table) {
-            $table->id('idproductorder');
-            $table->foreignId('order_id')->references('idorder')->on('orders')->cascadeOnDelete();
+        Schema::create('saler_products', function (Blueprint $table) {
+            $table->id('idsalerproduct');
             $table->foreignId('product_id')->references('idproduct')->on('products')->cascadeOnDelete();
             $table->integer('quantity');
+            $table->foreignId('saler_id')->on('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
-        Schema::dropIfExists('order_products');
+        Schema::dropIfExists('saler_products');
     }
 };
