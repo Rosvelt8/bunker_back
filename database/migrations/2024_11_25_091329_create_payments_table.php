@@ -12,8 +12,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->id('idpayment');
+            $table->foreignId('order_id')->references('idorder')->on('orders')->cascadeOnDelete();
             $table->decimal('amount', 10, 2);
             $table->enum('payment_method', ['cinetpay', 'credit_card', 'paypal']);
             $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');

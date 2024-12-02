@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_delivery_request',
+        'is_saler_request'
     ];
 
     /**
@@ -41,5 +43,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_delivery_request' => 'boolean',
+        'is_saler_request' => 'boolean',
     ];
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
 }

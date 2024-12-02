@@ -14,14 +14,16 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('last_name');
-            $table->string('phone_number', 15);
+            $table->string('last_name')->nullable();
+            $table->string('phone_number', 15)->nullable();
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('status', ['seller', 'delivery_person', 'customer', 'admin']);
-            $table->foreignId('city_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('country_id')->nullable()->constrained()->nullOnDelete();
+            $table->enum('status', ['seller', 'delivery_person', 'customer', 'admin'])->default('customer');
+            $table->foreignId('city_id')->references('idcity')->nullable()->on('cities');
+            $table->foreignId('country_id')->references('idcountry')->nullable()->on('countries');
             $table->boolean('is_validated')->default(false);
+            $table->boolean('is_delivery_request')->default(false);
+            $table->boolean('is_saler_request')->default(false);
             $table->timestamps();
         });
     }
