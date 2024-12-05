@@ -17,11 +17,14 @@ class AuthService
     public function register(array $data)
 
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    
+        // Retourner l'objet utilisateur complet
+        return $user->fresh();
     }
 
     /**

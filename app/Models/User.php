@@ -51,4 +51,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Document::class);
     }
+
+    public function getIsAdminAttribute()
+    {
+        return $this->role === 'admin'; // Adaptez selon votre logique
+    }
 }
