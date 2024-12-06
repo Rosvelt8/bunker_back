@@ -8,6 +8,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Country\CountryController;
 use App\Http\Controllers\City\CityController;
 use App\Http\Controllers\Category\CategoryController;
+use App\Http\Controllers\SubCategory\SubCategoryController;
 use App\Http\Controllers\Auth\AuthController;
 
 
