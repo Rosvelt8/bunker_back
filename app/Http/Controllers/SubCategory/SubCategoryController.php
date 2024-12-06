@@ -25,9 +25,10 @@ class SubCategoryController extends Controller
         $request->validate([
             'name' => 'required|string|unique:sub_categories,name|max:255',
             'category_id' => 'required|exists:categories,id',
+            'created_by' => 'required|exists:users,id'
         ]);
 
-        $subCategory = SubCategory::create($request->only(['name', 'category_id']));
+        $subCategory = SubCategory::create($request->only(['name', 'category_id', 'created_by']));
 
         return response()->json([
             'message' => 'SubCategory created successfully',
@@ -56,7 +57,7 @@ class SubCategoryController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        $subCategory->update($request->only(['name', 'description', 'category_id']));
+        $subCategory->update($request->only(['name', 'category_id']));
 
         return response()->json([
             'message' => 'SubCategory updated successfully',
