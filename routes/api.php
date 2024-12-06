@@ -2,12 +2,29 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Response;
 
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Country\CountryController;
 use App\Http\Controllers\City\CityController;
+use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Auth\AuthController;
 
+
+Route::get('images/{filename}', function ($filename) {
+    $path = public_path('images/' . $filename);
+
+    // Vérifier si le fichier existe
+    if (!file_exists($path)) {
+        return response()->json(['message' => 'Image not found'], 404);
+    }
+
+    // Retourner l'image avec le type MIME correct
+    $file = file_get_contents($path);
+    $type = mime_content_type($path);
+
+    return Response::make($file, 200)->header("Content-Type", $type);
+});
 
 Route::prefix('v1')->group(function () {
 
@@ -66,7 +83,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/categories', [CategoryController::class, 'index']);
             Route::post('/categories', [CategoryController::class, 'store']);
             Route::get('/categories/{id}', [CategoryController::class, 'show']);
-            Route::put('/categories/{id}', [CategoryController::class, 'update']);
+            Route::post('/categories/{id}', [CategoryController::class, 'update']);
             Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
             // ****************CRUD SUB CATEGORY
