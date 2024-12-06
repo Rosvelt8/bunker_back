@@ -9,17 +9,36 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'idproduct'; // Clé primaire personnalisée
-    public $incrementing = true; // Auto-incrément activé
-    protected $keyType = 'int'; // Type de la clé primaire
-    protected $fillable = ['name', 'quantity', 'price', 'image', 'description', 'subcategory_id', 'created_by'];
+    protected $fillable = [
+        'name', 'price', 'quantity', 'originalPrice', 'discountedPrice', 'discount', 
+        'isPromoted', 'subCategory', 'image', 'images', 'description', 
+        'brand', 'model', 'storage', 'sizes', 'colors', 'material', 
+        'dimensions', 'weight', 'sportType', 'level', 'rate', 
+        'isNew', 'salesCount', 'inStock', 'arrivalDate', 'created_by'
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'originalPrice' => 'decimal:2',
+        'discountedPrice' => 'decimal:2',
+        'discount' => 'decimal:2',
+        'isPromoted' => 'boolean',
+        'images' => 'array',
+        'sizes' => 'array',
+        'colors' => 'array',
+        'weight' => 'decimal:2',
+        'rate' => 'decimal:2',
+        'isNew' => 'boolean',
+        'inStock' => 'boolean',
+        'arrivalDate' => 'date'
+    ];
 
     /**
      * Relation avec SubCategory
      */
-    public function subcategory()
+    public function subCategory()
     {
-        return $this->belongsTo(SubCategory::class);
+        return $this->belongsTo(Subcategory::class);
     }
 
     /**
