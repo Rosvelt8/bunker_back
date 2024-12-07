@@ -100,6 +100,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/products', [ProductController::class, 'store']);
             Route::get('/products/{id}', [ProductController::class, 'show']);
             Route::post('/products/{id}', [ProductController::class, 'update']); 
+            Route::put('/products/{id}', [ProductController::class, 'updateInStock']); 
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
         });
 

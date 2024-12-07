@@ -250,6 +250,26 @@ class ProductController extends Controller
             'product' => $product,
         ], 200);
     }
+
+    /**
+     * Mettre à jour un produit
+    */
+    public function updateInStock(Request $request, $id) {
+        $request->validate(['inStock' => 'nullable|boolean',]);
+        $product = Product::findOrFail($id);
+        if($request->inStock === true && $product->quantity < 1) {
+            return response()->json([
+                'message' => 'Product quantity insuffisant',
+                'product' => $product,
+            ], 400);
+        }
+        $product->inStock = $request->inStock ;
+        $product->save();
+        return response()->json([
+            'message' => 'Product updated successfully',
+            'product' => $product,
+        ], 200);
+    }
     
 
     /**
