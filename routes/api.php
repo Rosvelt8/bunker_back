@@ -48,7 +48,7 @@ Route::prefix('v1')->group(function () {
         // -------> USER MANAGEMENT
         // --------------------------------------------------------------------
 
-        Route::get('/user', [AuthController::class, 'user']);
+        Route::get('/users', [AuthController::class, 'user']);
         Route::get('/users/{id}', [UserController::class, 'show']);
         Route::put('/users/{id}', [UserController::class, 'update']);
         

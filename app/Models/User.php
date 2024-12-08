@@ -22,7 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'is_delivery_request',
-        'is_saler_request'
+        'is_saler_request',
+        'is_validated'
     ];
 
     /**
@@ -45,12 +46,19 @@ class User extends Authenticatable
         'password' => 'hashed',
         'is_delivery_request' => 'boolean',
         'is_saler_request' => 'boolean',
+        'is_validated' => 'boolean',
     ];
 
     public function documents()
     {
         return $this->hasMany(Document::class);
     }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
+
 
     public function getIsAdminAttribute()
     {
