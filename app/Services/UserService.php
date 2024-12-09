@@ -27,7 +27,7 @@ class UserService
      */
     public function getUserById($id)
     {
-        return User::with(['documents', 'cities'])->find($id);
+        return User::with(['documents', 'city.country'])->find($id);
     }
 
     /**
@@ -37,6 +37,7 @@ class UserService
     {
         $user = User::findOrFail($id);
         $user->update($data);
+        $user->save();
         return $user;
     }
 

@@ -221,13 +221,15 @@ class UserController extends Controller
             'email' => 'email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|min:8',
         ]);
-
+        $user = User::findOrFail($id);
+        if(isset($validated['name'])) { $user->name = $request->name; }
+        if(isset($validated['email'])) { $user->email = $request->email; }
+        if(isset($request->phone_number)) { $user->phone_number = $request->phone_number; }
+        if(isset($request->city_id)) { $user->city_id = $request->city_id; }
         if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
+            $user->password = Hash::make($validated['password']);
         }
-
-        $user = $this->userService->updateUser($id, $validated);
-
+        $user->save();
         return response()->json([
             'message' => 'User updated successfully',
             'user' => $user,
