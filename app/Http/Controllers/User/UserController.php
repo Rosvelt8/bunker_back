@@ -5,6 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\UserService;
+use App\Models\Document;
+use Illuminate\Support\Facades\Mail;
+use App\Models\User;
 
 
 class UserController extends Controller
@@ -40,58 +43,83 @@ class UserController extends Controller
     /**
      * Devenir livreur
      */
-    public function becomeDeliver(Request $request){
+    public function BecomeDeliver(Request $request)
+    {
+    
+        // Validation des champs
         $request->validate([
-            'documents.*.document_type' => 'required|string|in:id_card, location_map, tax_identifier',
-            'documents.*.file' => 'required|file|max:2048'
+            'documents.*.document_type' => 'required|string|in:id_card,location_map,tax_identifier',
+            'documents.*.file' => 'required|file|max:2048', // Taille max 2MB
         ]);
-
+        
+    
         $user = $request->user();
-
+    
         // Mettre à jour le statut de requête
-        $user->update(['is_delivery_request' => true]);
-
+        $user->is_delivery_request = true;
+    
+        // Sauvegarder chaque document
         foreach ($request->documents as $doc) {
-            $filePath = $doc['file']->store('documents');
-
+            // Générer un nom unique pour chaque fichier
+            $fileName = md5(uniqid(rand(), true)) . '.' . $doc['file']->getClientOriginalExtension();
+    
+            // Déplacer le fichier vers le dossier public/documents
+            $doc['file']->move(public_path('documents'), $fileName);
+    
+            // Construire l'URL complète
+            $fileUrl = url('documents/' . $fileName);
+    
+            // Enregistrer dans la base de données
             Document::create([
                 'user_id' => $user->id,
                 'document_type' => $doc['document_type'],
-                'file_path' => $filePath,
-                'status' => false,
+                'document_path' => $fileUrl, // URL complète
+                'status' => false, // Par défaut non validé
             ]);
         }
-
+        $user->save();
+    
         return response()->json([
-            'message' => 'Request submitted successfully. Awaiting approval.'
+            'message' => 'Request submitted successfully. Awaiting approval.',
         ]);
     }
+    
 
     /**
      * Devenir vendeur
      */
-    public function becomeSaler(Request $request){
+    public function BecomeSaler(Request $request)
+    {
         $request->validate([
-            'documents.*.document_type' => 'required|string|in:id_card, location_map, tax_identifier',
+            'documents.*.document_type' => 'required|string|in:id_card,location_map,tax_identifier',
             'documents.*.file' => 'required|file|max:2048'
         ]);
 
         $user = $request->user();
-
+    
         // Mettre à jour le statut de requête
-        $user->update(['is_saler_request' => true]);
-
+        $user->is_saler_request = true;
+    
+        // Sauvegarder chaque document
         foreach ($request->documents as $doc) {
-            $filePath = $doc['file']->store('documents');
-
+            // Générer un nom unique pour chaque fichier
+            $fileName = md5(uniqid(rand(), true)) . '.' . $doc['file']->getClientOriginalExtension();
+    
+            // Déplacer le fichier vers le dossier public/documents
+            $doc['file']->move(public_path('documents'), $fileName);
+    
+            // Construire l'URL complète
+            $fileUrl = url('documents/' . $fileName);
+    
+            // Enregistrer dans la base de données
             Document::create([
                 'user_id' => $user->id,
                 'document_type' => $doc['document_type'],
-                'file_path' => $filePath,
-                'status' => false,
+                'document_path' => $fileUrl, // URL complète
+                'status' => false, // Par défaut non validé
             ]);
         }
-
+        $user->save();
         return response()->json([
             'message' => 'Request submitted successfully. Awaiting approval.'
         ]);
@@ -100,45 +128,62 @@ class UserController extends Controller
     /**
      * Visualiser toutes les requêtes
      */
-    public function listRequests()
+    public function listRequests(Request $request)
     {
-        $requests = User::where('is_delivery_request', true)
-                        ->orWhere('is_saler_request', true)
-                        ->with('documents')
-                        ->get();
+        $perPage = $request->query('per_page', 10);
+        $users = $this->userService->listUsers($perPage);
 
-        return response()->json($requests);
+        return response()->json($users);
     }
 
     /**
      * Approuver un livreur
      */
 
-    public function approveRequestDeliver($userId, Request $request)
-    {
+     public function approveRequestDeliver($userId, Request $request)
+     {
         $request->validate([
             'approve' => 'required|boolean',
+            'reason' => 'required_if:approve,false|string|max:500',
         ]);
-
+    
         $user = User::findOrFail($userId);
-
+    
         if ($request->approve) {
-            $user->update([
-                'is_delivery_request' => false,
-                'status' => 'deliver'
-            ]);
-
+            $user->is_validated = true;
+            $user->status = 'delivery_person' ;
+    
+            // Envoi de l'email pour approbation
+            Mail::to($user->email)->send(new \App\Notifications\RequestApprovedMail($user, "livreur"));
+            $user->save();
             return response()->json([
-                'message' => 'User approved as delivery person.'
+                'message' => 'User approved as delivery person. Email sent.'
             ]);
         } else {
-            $user->update(['is_delivery_request' => false]);
+            // Suppression des documents liés à l'utilisateur
+            $documents = $user->documents;
+            foreach ($documents as $document) {
+                // Supprimer physiquement le fichier du dossier public
+                $filePath = public_path(parse_url($document->document_path, PHP_URL_PATH));
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+
+                // Supprimer l'entrée de la base de données
+                $document->delete();
+            }
+            $user->is_validated = false;
+            $user->is_delivery_request = false ;
+    
+            // Envoi de l'email pour rejet
+            Mail::to($user->email)->send(new \App\Notifications\RequestRejectedMail($user, $request->reason, 'livreur'));
+            $user->save();
 
             return response()->json([
-                'message' => 'User request rejected.'
+                'message' => 'User request rejected. Email sent.'
             ]);
         }
-    }
+     }
 
     /**
      * Approuver un vendeur
@@ -148,24 +193,43 @@ class UserController extends Controller
     {
         $request->validate([
             'approve' => 'required|boolean',
+            'reason' => 'required_if:approve,false|string|max:500',
         ]);
-
+    
         $user = User::findOrFail($userId);
-
+    
         if ($request->approve) {
-            $user->update([
-                'is_saler_request' => false,
-                'status' => 'saler'
-            ]);
-
+            $user->is_validated = true;
+            $user->status = 'seller' ;
+    
+            // Envoi de l'email pour approbation
+            Mail::to($user->email)->send(new \App\Notifications\RequestApprovedMail($user, "vendeur"));
+            $user->save();
             return response()->json([
-                'message' => 'User approved as saler person.'
+                'message' => 'User approved as seller person. Email sent.'
             ]);
         } else {
-            $user->update(['is_saler_request' => false]);
+            // Suppression des documents liés à l'utilisateur
+            $documents = $user->documents;
+            foreach ($documents as $document) {
+                // Supprimer physiquement le fichier du dossier public
+                $filePath = public_path(parse_url($document->document_path, PHP_URL_PATH));
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+
+                // Supprimer l'entrée de la base de données
+                $document->delete();
+            }
+            $user->is_validated = false;
+            $user->is_saler_request = false ;
+    
+            // Envoi de l'email pour rejet
+            Mail::to($user->email)->send(new \App\Notifications\RequestRejectedMail($user, $request->reason, 'vendeur'));
+            $user->save();
 
             return response()->json([
-                'message' => 'User request rejected.'
+                'message' => 'User request rejected. Email sent.'
             ]);
         }
     }
@@ -181,13 +245,15 @@ class UserController extends Controller
             'email' => 'email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|min:8',
         ]);
-
+        $user = User::findOrFail($id);
+        if(isset($validated['name'])) { $user->name = $request->name; }
+        if(isset($validated['email'])) { $user->email = $request->email; }
+        if(isset($request->phone_number)) { $user->phone_number = $request->phone_number; }
+        if(isset($request->city_id)) { $user->city_id = $request->city_id; }
         if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
+            $user->password = Hash::make($validated['password']);
         }
-
-        $user = $this->userService->updateUser($id, $validated);
-
+        $user->save();
         return response()->json([
             'message' => 'User updated successfully',
             'user' => $user,

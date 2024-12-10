@@ -12,7 +12,14 @@ class UserService
      */
     public function listUsers($perPage = 10)
     {
-        return User::paginate($perPage);
+        return User::with(['documents', 'city'])
+        ->where('id', '!=', auth()->user()->id)
+        ->where(function ($query) {
+            $query->where('is_saler_request', true)
+                  ->orWhere('is_delivery_request', true);
+        })
+        ->where('status', 'customer')
+        ->get();
     }
 
     /**
@@ -20,7 +27,7 @@ class UserService
      */
     public function getUserById($id)
     {
-        return User::findOrFail($id);
+        return User::with(['documents', 'city.country'])->find($id);
     }
 
     /**
@@ -30,6 +37,7 @@ class UserService
     {
         $user = User::findOrFail($id);
         $user->update($data);
+        $user->save();
         return $user;
     }
 
@@ -49,7 +57,7 @@ class UserService
     public function toggleUserStatus($id)
     {
         $user = User::findOrFail($id);
-        $user->is_active = !$user->is_active;
+        $user->is_validated = !$user->is_validated;
         $user->save();
         return $user;
     }
