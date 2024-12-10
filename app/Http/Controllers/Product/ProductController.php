@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,7 +25,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validate the request data
+
         $request->validate([
             'name' => [
                 'required', 
@@ -114,6 +115,9 @@ class ProductController extends Controller
         
         // 5. Create the product
         $product = Product::create($productData);
+        $sub_category = SubCategory::findOrFail($product->subCategory);
+        $sub_category->countProduct = $sub_category->countProduct +  1 ;
+        $sub_category->save();
 
         // 6. Return JSON response
         return response()->json([
@@ -136,7 +140,6 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // 1. Validate the request data
         $request->validate([
             'name' => [
                 'sometimes', 
@@ -243,6 +246,9 @@ class ProductController extends Controller
         // 5. Update the product
         $product->fill($request->except(['image', 'images']));
         $product->save();
+        // $sub_category = SubCategory::findOrFail($product->subCategory);
+        // $sub_category->countProduct = $sub_category->countProduct +  $product->quantity ;
+        // $sub_category->save();
     
         // 6. Return JSON response
         return response()->json([

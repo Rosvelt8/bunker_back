@@ -160,7 +160,19 @@ class UserController extends Controller
                 'message' => 'User approved as delivery person. Email sent.'
             ]);
         } else {
-            $user->is_validated = true;
+            // Suppression des documents liés à l'utilisateur
+            $documents = $user->documents;
+            foreach ($documents as $document) {
+                // Supprimer physiquement le fichier du dossier public
+                $filePath = public_path(parse_url($document->document_path, PHP_URL_PATH));
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+
+                // Supprimer l'entrée de la base de données
+                $document->delete();
+            }
+            $user->is_validated = false;
             $user->is_delivery_request = false ;
     
             // Envoi de l'email pour rejet
@@ -197,7 +209,19 @@ class UserController extends Controller
                 'message' => 'User approved as seller person. Email sent.'
             ]);
         } else {
-            $user->is_validated = true;
+            // Suppression des documents liés à l'utilisateur
+            $documents = $user->documents;
+            foreach ($documents as $document) {
+                // Supprimer physiquement le fichier du dossier public
+                $filePath = public_path(parse_url($document->document_path, PHP_URL_PATH));
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+
+                // Supprimer l'entrée de la base de données
+                $document->delete();
+            }
+            $user->is_validated = false;
             $user->is_saler_request = false ;
     
             // Envoi de l'email pour rejet
