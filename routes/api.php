@@ -54,8 +54,12 @@ Route::prefix('v1')->group(function () {
         
         Route::post('/beDeliver', [UserController::class, 'BecomeDeliver']);
         Route::post('/beSaler', [UserController::class, 'BecomeSaler']);
+
+        Route::middleware('seller')->group(function () {
+
+        });
         
-        Route::middleware('admin')->group(function () {
+        Route::middleware(['admin', 'seller'])->group(function () {
             Route::get('/users', [UserController::class, 'index']);
             Route::get('/getRequests', [UserController::class, 'listRequests']);
             Route::post('/admin/delivery/requests/{user_id}/approveDeliver', [UserController::class, 'approveRequestDeliver']);
