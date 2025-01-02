@@ -14,7 +14,7 @@ class OrderController extends Controller
     protected $paymentService;
 
     public function __construct(PaymentService $paymentService)
-    {pooppppn
+    {
         $this->paymentService = $paymentService;
     }
 
