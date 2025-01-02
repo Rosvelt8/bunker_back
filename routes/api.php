@@ -51,10 +51,12 @@ Route::prefix('v1')->group(function () {
         Route::get('/users', [AuthController::class, 'user']);
         Route::get('/users/{id}', [UserController::class, 'show']);
         Route::put('/users/{id}', [UserController::class, 'update']);
-        
+
         Route::post('/beDeliver', [UserController::class, 'BecomeDeliver']);
         Route::post('/beSaler', [UserController::class, 'BecomeSaler']);
 
+
+       
         Route::middleware('seller')->group(function () {
 
         });
@@ -72,7 +74,7 @@ Route::prefix('v1')->group(function () {
         // --------------------------------------------------------------------
 
             // ****************CRUD COUNTRY
-            Route::get('/countries', [CountryController::class, 'index']); 
+            Route::get('/countries', [CountryController::class, 'index']);
             Route::post('/countries', [CountryController::class, 'store']);
             Route::get('/countries/{id}', [CountryController::class, 'show']);
             Route::put('/countries/{id}', [CountryController::class, 'update']);
@@ -80,7 +82,7 @@ Route::prefix('v1')->group(function () {
 
             // ****************CRUD CITY
             Route::get('/cities', [CityController::class, 'index']);
-            Route::post('/cities', [CityController::class, 'store']); 
+            Route::post('/cities', [CityController::class, 'store']);
             Route::get('/cities/{id}', [CityController::class, 'show']);
             Route::put('/cities/{id}', [CityController::class, 'update']);
             Route::delete('/cities/{id}', [CityController::class, 'destroy']);
@@ -98,17 +100,23 @@ Route::prefix('v1')->group(function () {
             Route::get('/sub-categories/{id}', [SubCategoryController::class, 'show']);
             Route::put('/sub-categories/{id}', [SubCategoryController::class, 'update']);
             Route::delete('/sub-categories/{id}', [SubCategoryController::class, 'destroy']);
-            
+
             // ****************CRUD PRODUCT
             Route::get('/products', [ProductController::class, 'index']);
             Route::post('/products', [ProductController::class, 'store']);
             Route::get('/products/{id}', [ProductController::class, 'show']);
-            Route::post('/products/{id}', [ProductController::class, 'update']); 
-            Route::put('/products/{id}', [ProductController::class, 'updateInStock']); 
+            Route::post('/products/{id}', [ProductController::class, 'update']);
+            Route::put('/products/{id}', [ProductController::class, 'updateInStock']);
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+
+
         });
 
+        // --------------------------------------------------------------------
+        // -------> SALERS MANAGEMENT
+        // --------------------------------------------------------------------
 
+        
     });
 });
 

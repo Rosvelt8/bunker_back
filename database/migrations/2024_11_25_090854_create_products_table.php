@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->string('image')->nullable();
             $table->text('description')->nullable();
-            $table->foreignId('subcategory_id')->references('idsubcategory')->on('sub_categories')->cascadeOnDelete();
+            $table->foreignId('subcategory_id')->references('id')->on('sub_categories')->cascadeOnDelete();
             $table->foreignId('created_by')->on('users')->cascadeOnDelete();
             $table->timestamps();
         });

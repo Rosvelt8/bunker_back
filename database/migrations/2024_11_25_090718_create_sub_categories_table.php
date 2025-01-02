@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('countProduct')->default(0);
-            $table->foreignId('category_id')->references('idcategory')->on('categories')->cascadeOnDelete();
+            $table->foreignId('category_id')->references('id')->on('categories')->cascadeOnDelete();
             $table->foreignId('created_by')->on('users')->cascadeOnDelete();
             $table->timestamps();
         });
