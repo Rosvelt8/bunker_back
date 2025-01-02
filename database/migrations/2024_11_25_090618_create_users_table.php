@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->enum('status', ['seller', 'delivery_person', 'customer', 'admin'])->default('customer');
-            $table->foreignId('city_id')->references('idcity')->nullable()->on('cities');
-            $table->foreignId('country_id')->references('idcountry')->nullable()->on('countries');
+            $table->foreignId('city_id')->references('id')->nullable()->on('cities');
+            $table->foreignId('country_id')->references('id')->nullable()->on('countries');
             $table->boolean('is_validated')->default(false);
             $table->boolean('is_delivery_request')->default(false);
             $table->boolean('is_saler_request')->default(false);
