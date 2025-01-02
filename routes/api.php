@@ -59,8 +59,17 @@ Route::prefix('v1')->group(function () {
        
         Route::middleware('seller')->group(function () {
 
+            // *********** PRODUCT MANAGEMENT********************
+
+            Route::post('/saler/upsert', [ProductController::class, 'upsert']);
+            Route::delete('/saler/deleteProduct', [ProductController::class, 'deleteSalerProduct']);
+            Route::get('/saler/getOneProduct', [ProductController::class, 'getOneSalerProduct']);
+            Route::get('/saler/{saler_id}/products', [ProductController::class, 'listBySaler']);
+
+            
+
         });
-        
+
         Route::middleware(['admin', 'seller'])->group(function () {
             Route::get('/users', [UserController::class, 'index']);
             Route::get('/getRequests', [UserController::class, 'listRequests']);
