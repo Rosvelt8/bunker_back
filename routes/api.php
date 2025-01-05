@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Response;
 
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Country\CountryController;
+use App\Http\Controllers\Order\CartController;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\City\CityController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\SubCategory\SubCategoryController;
@@ -115,6 +117,10 @@ Route::prefix('v1')->group(function () {
         // --------------------------------------------------------------------
         // -------> SALERS MANAGEMENT
         // --------------------------------------------------------------------
+
+        // **************** Gestion du panier utilisateur
+        Route::post('/addTocart', [CartController::class, 'addToCart']);
+        Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
 
         
     });

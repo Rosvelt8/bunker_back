@@ -74,16 +74,27 @@ class CartController extends Controller
             return response()->json(['message' => 'Cart is empty'], 400);
         }
 
+        // Calcul du total
         $totalPrice = 0;
         foreach ($cartItems as $item) {
             $totalPrice += $item->product->price * $item->quantity;
         }
 
-        DB::transaction(function () use ($userId, $cartItems, $totalPrice) {
+        // Traitement du paiement
+        $paymentResult = $this->paymentService->processPayment($totalPrice, 'XAF');
+
+        if ($paymentResult['status'] !== 'success') {
+            return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
+        }
+
+        // Créer la commande et les items associés
+        DB::transaction(function () use ($userId, $cartItems, $totalPrice, $paymentResult) {
             $order = Order::create([
                 'user_id' => $userId,
                 'total_price' => $totalPrice,
-                'status' => 'pending',
+                'status' => 'paid', // Commande validée
+                'payment_status' => 'completed', // Paiement réussi
+                'transaction_reference' => $paymentResult['transaction_reference'],
             ]);
 
             foreach ($cartItems as $item) {
@@ -99,6 +110,9 @@ class CartController extends Controller
             CartItem::where('user_id', $userId)->delete();
         });
 
-        return response()->json(['message' => 'Order placed successfully', 'totalPrice' => $totalPrice], 201);
+        return response()->json([
+            'message' => 'Order placed successfully',
+            'transaction_reference' => $paymentResult['transaction_reference'],
+        ], 201);
     }
 }

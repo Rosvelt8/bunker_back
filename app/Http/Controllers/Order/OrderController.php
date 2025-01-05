@@ -37,8 +37,7 @@ class OrderController extends Controller
         }
 
         // Traitement du paiement
-        $paymentResult = $this->paymentService->processPayment($totalPrice, 'XAF
-        ', 'Order Payment');
+        $paymentResult = $this->paymentService->processPayment($totalPrice, 'XAF');
 
         if ($paymentResult['status'] !== 'success') {
             return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
