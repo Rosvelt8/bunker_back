@@ -18,5 +18,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/payment/notify', [PaymentController::class, 'notify'])->name('payment.notify');
+Route::post('/payment/notify', [App\Http\Controllers\Order\CartController::class, 'handlePaymentNotification'])->name('payment.notify');
 Route::get('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');

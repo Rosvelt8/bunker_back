@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
 use App\Models\SubCategory;
+use App\Models\Product;
+use App\Models\SalerProduct;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -327,7 +328,7 @@ class ProductController extends Controller
     {
         // Validation des données
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,idproduct',
+            'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
             'saler_id' => 'required|exists:users,id',
         ]);
@@ -337,8 +338,9 @@ class ProductController extends Controller
             $salerProduct = SalerProduct::where('product_id', $validated['product_id'])
                 ->where('saler_id', $validated['saler_id'])
                 ->first();
+                // dd($salerProduct);
 
-            if ($salerProduct) {
+                if ($salerProduct) {
                 // Mise à jour si l'enregistrement existe
                 $salerProduct->update([
                     'quantity' => $validated['quantity'],
@@ -369,7 +371,7 @@ class ProductController extends Controller
     {
         // Validation des données
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,idproduct',
+            'product_id' => 'required|exists:products,id',
             'saler_id' => 'required|exists:users,id',
         ]);
 
@@ -404,7 +406,7 @@ class ProductController extends Controller
     {
         // Validation des données
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,idproduct',
+            'product_id' => 'required|exists:products,id',
             'saler_id' => 'required|exists:users,id',
         ]);
 

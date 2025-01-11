@@ -58,17 +58,17 @@ Route::prefix('v1')->group(function () {
         Route::post('/beSaler', [UserController::class, 'BecomeSaler']);
 
 
-       
+
         Route::middleware('seller')->group(function () {
 
             // *********** PRODUCT MANAGEMENT********************
 
             Route::post('/saler/upsert', [ProductController::class, 'upsert']);
-            Route::delete('/saler/deleteProduct', [ProductController::class, 'deleteSalerProduct']);
-            Route::get('/saler/getOneProduct', [ProductController::class, 'getOneSalerProduct']);
-            Route::get('/saler/{saler_id}/products', [ProductController::class, 'listBySaler']);
+            Route::delete('/salerproduct/delete', [ProductController::class, 'deleteSalerProduct']);
+            Route::get('/salerproduct/getOne', [ProductController::class, 'getOneSalerProduct']);
+            Route::get('/salerproduct/{saler_id}/listBySaler', [ProductController::class, 'listBySaler']);
 
-            
+
 
         });
 
@@ -130,8 +130,9 @@ Route::prefix('v1')->group(function () {
         // **************** Gestion du panier utilisateur
         Route::post('/addTocart', [CartController::class, 'addToCart']);
         Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
+        Route::post('/checkout', [CartController::class, 'checkout']);
 
-        
+
     });
 });
 
