@@ -67,6 +67,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/salerproduct/delete', [ProductController::class, 'deleteSalerProduct']);
             Route::get('/salerproduct/getOne', [ProductController::class, 'getOneSalerProduct']);
             Route::get('/salerproduct/{saler_id}/listBySaler', [ProductController::class, 'listBySaler']);
+            Route::get('/categories-with-sub', [CategoryController::class, 'indexWithSubCategories']);
 
 
 

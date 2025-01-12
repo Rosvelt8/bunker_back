@@ -17,6 +17,12 @@ class CategoryController extends Controller
         return response()->json($categories);
     }
 
+    public function indexWithSubCategories()
+    {
+        $categories = Category::with('subCategories')->get();
+        return response()->json($categories);
+    }
+
     /**
      * Créer une nouvelle catégorie
      */
