@@ -169,6 +169,7 @@ class CartController extends Controller
                 $order = Order::find($payment->order_id);
                 if ($order) {
                     $order->status = 'paid';
+                    $order->salesCount += 1;
                     $order->save();
                 }
             }
