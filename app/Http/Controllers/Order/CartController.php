@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CartItem;
 use App\Models\Order;
-use App\Models\OrderItem;
+use App\Models\OrderProducts;
 use App\Services\PaymentService;
 use Illuminate\Support\Facades\DB;
 use App\Models\Payment;
@@ -28,7 +28,7 @@ class CartController extends Controller
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
         ]);
-        
+
         $cartItem = CartItem::where('user_id', $request->user()->id)
                             ->where('product_id', $request->product_id)
                             ->first();
@@ -101,14 +101,14 @@ class CartController extends Controller
                 'user_id' => $userId,
                 'total_price' => $totalPrice,
                 'status' => 'on_hold',
-                'delivery_cost' => 0,
+                'delivery_cost' => 0.1,
                 'delivery_location'=> 'douala',
                 'payment_status' => 'completed', // Paiement réussi
                 'transaction_reference' => $paymentResult['transaction_reference'],
             ]);
 
             foreach ($cartItems as $item) {
-                OrderItem::create([
+                OrderProducts::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
@@ -116,6 +116,7 @@ class CartController extends Controller
                 ]);
             }
 
+            // dd($totalPrice);
             // Enregistrer la transaction dans la table payment
             Payment::create([
                 'order_id' => $order->id,
@@ -144,16 +145,18 @@ class CartController extends Controller
     }
 
     public function validateCheckout(Request $request){
-        
+
     }
 
     public function handlePaymentNotification(Request $request)
     {
         $transactionId = $request->input('cpm_trans_id');
         $siteId = $request->input('cpm_site_id');
-
+        // dd($request->input());
         // Verify the transaction status with CinetPay
-        $verificationResult = $this->paymentService->verifyTransaction($transactionId, $siteId);
+        $verificationResult = $this->paymentService->verifyTransaction($transactionId, $siteId, [
+            'verify' => false, // Disable SSL verification
+        ]);
 
         if ($verificationResult['status'] === 'success') {
             // Update the payment status in the database
@@ -166,7 +169,6 @@ class CartController extends Controller
                 $order = Order::find($payment->order_id);
                 if ($order) {
                     $order->status = 'paid';
-                    $order->payment_status = 'completed';
                     $order->save();
                 }
             }
@@ -180,8 +182,7 @@ class CartController extends Controller
                 // Update the order status
                 $order = Order::find($payment->order_id);
                 if ($order) {
-                    $order->status = 'failed';
-                    $order->payment_status = 'failed';
+                    $order->status = 'unpaid';
                     $order->save();
                 }
             }

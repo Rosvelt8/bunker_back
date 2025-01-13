@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Order;
 
 use App\Models\CartItem;
 use App\Models\Order;
-use App\Models\OrderItem;
+use App\Models\OrderProducts;
+use App\Models\SalerProduct;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,57 +19,72 @@ class OrderController extends Controller
         $this->paymentService = $paymentService;
     }
 
-    /**
-     * Valider la commande et gérer le paiement électronique.
-     */
-    public function checkout(Request $request)
+    public function listPaidOrderItems(Request $request)
     {
-        $userId = $request->user()->id;
-        $cartItems = CartItem::where('user_id', $userId)->get();
+        $paidOrders = Order::where('status', 'paid')->get();
+        $orderItems = [];
 
-        if ($cartItems->isEmpty()) {
-            return response()->json(['message' => 'Cart is empty'], 400);
-        }
-
-        // Calcul du total
-        $totalPrice = 0;
-        foreach ($cartItems as $item) {
-            $totalPrice += $item->product->price * $item->quantity;
-        }
-
-        // Traitement du paiement
-        $paymentResult = $this->paymentService->processPayment($totalPrice, 'XAF');
-
-        if ($paymentResult['status'] !== 'success') {
-            return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
-        }
-
-        // Créer la commande et les items associés
-        DB::transaction(function () use ($userId, $cartItems, $totalPrice, $paymentResult) {
-            $order = Order::create([
-                'user_id' => $userId,
-                'total_price' => $totalPrice,
-                'status' => 'paid', // Commande validée
-                'payment_status' => 'completed', // Paiement réussi
-                'transaction_reference' => $paymentResult['transaction_reference'],
-            ]);
-
-            foreach ($cartItems as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item->product_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->product->price,
-                ]);
+        foreach ($paidOrders as $order) {
+            $items = OrderProducts::where('order_id', $order->id)->get();
+            foreach ($items as $item) {
+                $salerProduct = SalerProduct::where('saler_id', $request->user()->id)
+                                            ->where('product_id', $item->product_id)
+                                            ->first();
+                if ($salerProduct) {
+                    $orderItems[] = $item;
+                }
             }
+        }
 
-            // Vider le panier
-            CartItem::where('user_id', $userId)->delete();
-        });
-
-        return response()->json([
-            'message' => 'Order placed successfully',
-            'transaction_reference' => $paymentResult['transaction_reference'],
-        ], 201);
+        return response()->json($orderItems);
     }
+
+    public function assignSalerToOrderProduct(Request $request)
+    {
+        $orderProduct = OrderProducts::find($request->orderProductId);
+
+        if ($orderProduct) {
+            $orderProduct->status = 'pending';
+            $orderProduct->saler_id = $request->user()->id;
+            $orderProduct->save();
+
+            return response()->json(['message' => 'Order product status updated and saler assigned successfully.']);
+        }
+
+        return response()->json(['message' => 'Order product not found.'], 404);
+    }
+
+    public function listAssignedOrderItems(Request $request)
+    {
+        $salerId = $request->user()->id;
+        $assignedItems = OrderProducts::where('saler_id', $salerId)->get();
+
+        return response()->json($assignedItems);
+    }
+
+    public function validateAssignedOrderItems(Request $request)
+    {
+        $orderProduct = OrderProducts::find($request->orderProductId);
+
+        if ($orderProduct->status=='pending') {
+            $orderProduct->status = 'ready';
+            $orderProduct->saler_id = $request->user()->id;
+            $orderProduct->save();
+
+            return response()->json(['message' => 'Order product status updated successfully.']);
+        }
+
+        return response()->json(['message' => 'Order product not found.'], 404);
+    }
+
+    public function historyOrderItemsBySaler(Request $request)
+    {
+        $salerId = $request->user()->id;
+        $readyItems = OrderProducts::where('saler_id', $salerId)
+                                    ->where('status', 'ready')
+                                    ->get();
+
+        return response()->json($readyItems);
+    }
+
 }
