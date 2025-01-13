@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Order;
 
+use App\Http\Controllers\Controller; // Add this line
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderProducts;
@@ -23,9 +24,10 @@ class OrderController extends Controller
     {
         $paidOrders = Order::where('status', 'paid')->get();
         $orderItems = [];
+        // dd($paidOrders);
 
         foreach ($paidOrders as $order) {
-            $items = OrderProducts::where('order_id', $order->id)->get();
+            $items = OrderProducts::where('order_id', $order->idorder)->with('product')->get();
             foreach ($items as $item) {
                 $salerProduct = SalerProduct::where('saler_id', $request->user()->id)
                                             ->where('product_id', $item->product_id)
@@ -41,7 +43,7 @@ class OrderController extends Controller
 
     public function assignSalerToOrderProduct(Request $request)
     {
-        $orderProduct = OrderProducts::find($request->orderProductId);
+        $orderProduct = OrderProducts::with('product')->first($request->orderProductId);
 
         if ($orderProduct) {
             $orderProduct->status = 'pending';
@@ -57,18 +59,17 @@ class OrderController extends Controller
     public function listAssignedOrderItems(Request $request)
     {
         $salerId = $request->user()->id;
-        $assignedItems = OrderProducts::where('saler_id', $salerId)->get();
+        $assignedItems = OrderProducts::where('saler_id', $salerId)->with('product')->get();
 
         return response()->json($assignedItems);
     }
 
     public function validateAssignedOrderItems(Request $request)
     {
-        $orderProduct = OrderProducts::find($request->orderProductId);
+        $orderProduct = OrderProducts::with('product')->first($request->orderProductId);
 
         if ($orderProduct->status=='pending') {
             $orderProduct->status = 'ready';
-            $orderProduct->saler_id = $request->user()->id;
             $orderProduct->save();
 
             return response()->json(['message' => 'Order product status updated successfully.']);

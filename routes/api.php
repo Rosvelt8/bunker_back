@@ -69,10 +69,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/salerproduct/{saler_id}/listBySaler', [ProductController::class, 'listBySaler']);
 
             // ************ ORDER MANAGEMENT *********************
-            Route::get('/orders/paid-items', [OrderController::class, 'listPaidOrderItems']);
-            Route::post('/orders/assign-saler', [OrderController::class, 'assignSalerToOrderProduct']);
-            Route::get('/orders/assigned-items', [OrderController::class, 'listAssignedOrderItems']);
-            Route::post('/orders/validate-assigned-item', [OrderController::class, 'validateAssignedOrderItems']);
+            Route::get('/orders/available', [OrderController::class, 'listPaidOrderItems']);
+            Route::post('/orders/subscribe', [OrderController::class, 'assignSalerToOrderProduct']);
+            Route::get('/orders/subscribed', [OrderController::class, 'listAssignedOrderItems']);
+            Route::post('/orders/validate', [OrderController::class, 'validateAssignedOrderItems']);
             Route::get('/orders/history', [OrderController::class, 'historyOrderItemsBySaler']);
 
 
