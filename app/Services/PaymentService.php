@@ -90,6 +90,8 @@ class PaymentService
                 'apikey' => $this->apiKey,
                 'site_id' => $this->siteId,
             ]
+        ], [
+            'verify' => false, // Disable SSL verification
         ]);
 
         $responseBody = json_decode($response->getBody(), true);
@@ -110,15 +112,15 @@ class PaymentService
         ];
     }
 
-    public function verifyTransaction($transactionId, $siteId)
+    public function verifyTransaction($transactionId, $siteId , $options= [])
     {
-        $response = $this->client->post('https://api-checkout.cinetpay.com/v2/payment/check', [
+        $response = $this->client->post('https://api-checkout.cinetpay.com/v2/payment/check', array_merge([
             'json' => [
                 'apikey' => "4659668566c4d543a545d1.86010226",
                 'site_id' => "5879943",
                 'transaction_id' => $transactionId,
             ]
-        ]);
+        ], $options));
 
         $responseBody = json_decode($response->getBody(), true);
 

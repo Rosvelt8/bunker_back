@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'idorder';
+
 
     protected $fillable = ['user_id', 'total_price', 'status'];
 
