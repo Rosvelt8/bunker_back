@@ -468,4 +468,58 @@ class ProductController extends Controller
         }
     }
 
+    public function listBySubCategory($sub_category_id)
+    {
+        try {
+            // Récupérer les produits liés au vendeur
+            $products = Product::where('subCategory', $sub_category_id)->get();
+
+            if ($products->isEmpty()) {
+                return response()->json([
+                    'message' => 'Aucun produit trouvé pour cette sous-catégorie.',
+                    'data' => [],
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Liste des produits de la sous-catégorie récupérée avec succès.',
+                'data' => $products,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la récupération des produits.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function listTop3SellingProducts()
+    {
+        $topSellingProducts = Product::orderBy('salesCount', 'desc')->take(3)->get();
+
+        return response()->json($topSellingProducts);
+    }
+
+    public function listTopSellingProducts()
+    {
+        $topSellingProducts = Product::orderBy('salesCount', 'desc')->take(8)->get();
+
+        return response()->json($topSellingProducts);
+    }
+
+    public function listPromotedProducts()
+    {
+        $promotedProducts = Product::where('isPromoted', true)->get();
+
+        return response()->json($promotedProducts);
+    }
+
+    public function listNewProducts()
+    {
+        $newProducts = Product::where('isNew', true)->orderBy('created_at', 'desc')->take(10)->get();
+
+        return response()->json($newProducts);
+    }
+    
 }

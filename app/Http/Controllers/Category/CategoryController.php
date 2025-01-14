@@ -173,5 +173,18 @@ class CategoryController extends Controller
             'message' => 'Category deleted successfully',
         ], 200);
     }
+
+    /**
+     * Liste des catégories populaires
+     */
+    public function listPopularCategories()
+    {
+        $popularCategories = Category::withCount('products')
+                                     ->orderBy('products_count', 'desc')
+                                     ->take(3)
+                                     ->get();
+
+        return response()->json($popularCategories);
+    }
     
 }

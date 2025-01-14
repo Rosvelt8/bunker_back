@@ -140,14 +140,13 @@ Route::prefix('v1')->group(function () {
         Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
         Route::post('/checkout', [CartController::class, 'checkout']);
 
-        // **************** Gestion des commandes
-        Route::middleware('auth:api')->group(function () {
-            Route::get('/orders/paid-items', [OrderController::class, 'listPaidOrderItems']);
-            Route::post('/orders/assign-saler', [OrderController::class, 'assignSalerToOrderProduct']);
-            Route::get('/orders/assigned-items', [OrderController::class, 'listAssignedOrderItems']);
-            Route::post('/orders/validate-assigned-item', [OrderController::class, 'validateAssignedOrderItems']);
-            Route::get('/orders/history', [OrderController::class, 'historyOrderItemsBySaler']);
-        });
+        
+
+        Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
+        Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
+        Route::get('/categories/popular', [CategoryController::class, 'listPopularCategories']);
+        Route::get('/products/promoted', [ProductController::class, 'listPromotedProducts']);
+        Route::get('/products/new', [ProductController::class, 'listNewProducts']);
 
     });
 });

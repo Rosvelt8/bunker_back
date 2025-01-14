@@ -7,6 +7,7 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderProducts;
 use App\Models\SalerProduct;
+use App\Models\Product;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,9 +44,11 @@ class OrderController extends Controller
 
     public function assignSalerToOrderProduct(Request $request)
     {
-        $orderProduct = OrderProducts::with('product')->first($request->orderProductId);
+        $orderProduct = OrderProducts::find($request->orderProductId);
 
         if ($orderProduct) {
+            $salerProduct= Product::find($orderProduct->product_id);
+            $salerProduct->quantity -= $orderProduct->quantity;
             $orderProduct->status = 'pending';
             $orderProduct->saler_id = $request->user()->id;
             $orderProduct->save();
@@ -59,7 +62,7 @@ class OrderController extends Controller
     public function listAssignedOrderItems(Request $request)
     {
         $salerId = $request->user()->id;
-        $assignedItems = OrderProducts::where('saler_id', $salerId)->with('product')->get();
+        $assignedItems = OrderProducts::where('saler_id', $salerId)->where('status', 'pending')->with('product')->get();
 
         return response()->json($assignedItems);
     }
