@@ -173,10 +173,17 @@ class CategoryController extends Controller
      */
     public function listPopularCategories()
     {
-        $popularCategories = Category::withCount('products')
-                                     ->orderBy('products_count', 'desc')
+        $popularCategories = Category::with(['subCategories.products'])
+                                     ->get()
+                                     ->map(function ($category) {
+                                         $category->products_count = $category->subCategories->sum(function ($subCategory) {
+                                             return $subCategory->products->count();
+                                         });
+                                         return $category;
+                                     })
+                                     ->sortByDesc('products_count')
                                      ->take(3)
-                                     ->get();
+                                     ->values();
 
         return response()->json($popularCategories);
     }
