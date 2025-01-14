@@ -57,6 +57,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/beDeliver', [UserController::class, 'BecomeDeliver']);
         Route::post('/beSaler', [UserController::class, 'BecomeSaler']);
 
+        Route::get('/products', [ProductController::class, 'index']);
+        Route::get('/categories', [CategoryController::class, 'index']);
+        Route::get('/sub-categories', [SubCategoryController::class, 'index']);
 
 
         Route::middleware('seller')->group(function () {
@@ -121,7 +124,6 @@ Route::prefix('v1')->group(function () {
             Route::delete('/sub-categories/{id}', [SubCategoryController::class, 'destroy']);
 
             // ****************CRUD PRODUCT
-            Route::get('/products', [ProductController::class, 'index']);
             Route::post('/products', [ProductController::class, 'store']);
             Route::get('/products/{id}', [ProductController::class, 'show']);
             Route::post('/products/{id}', [ProductController::class, 'update']);
