@@ -472,7 +472,7 @@ class ProductController extends Controller
     {
         try {
             // Récupérer les produits liés au vendeur
-            $products = Product::where('subCategory', $sub_category_id)->get();
+            $products = Product::where('subCategory', $sub_category_id)->with(['subCategory'])->get();
 
             if ($products->isEmpty()) {
                 return response()->json([
@@ -496,30 +496,30 @@ class ProductController extends Controller
 
     public function listTop3SellingProducts()
     {
-        $topSellingProducts = Product::orderBy('salesCount', 'desc')->take(3)->get();
+        $topSellingProducts = Product::orderBy('salesCount', 'desc')->with(['subCategory'])->take(3)->get();
 
         return response()->json($topSellingProducts);
     }
 
     public function listTopSellingProducts()
     {
-        $topSellingProducts = Product::orderBy('salesCount', 'desc')->take(8)->get();
+        $topSellingProducts = Product::orderBy('salesCount', 'desc')->with(['subCategory'])->take(8)->get();
 
         return response()->json($topSellingProducts);
     }
 
     public function listPromotedProducts()
     {
-        $promotedProducts = Product::where('isPromoted', true)->get();
+        $promotedProducts = Product::where('isPromoted', true)->with(['subCategory'])->get();
 
         return response()->json($promotedProducts);
     }
 
     public function listNewProducts()
     {
-        $newProducts = Product::where('isNew', true)->orderBy('created_at', 'desc')->take(10)->get();
+        $newProducts = Product::where('isNew', true)->orderBy('created_at', 'desc')->with(['subCategory'])->take(10)->get();
 
         return response()->json($newProducts);
     }
-    
+
 }
