@@ -43,6 +43,12 @@ Route::prefix('v1')->group(function () {
     })->name('password.reset');
     Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail']);
 
+    Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
+    Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
+    Route::get('/categories/popular', [CategoryController::class, 'listPopularCategories']);
+    Route::get('/products/promoted', [ProductController::class, 'listPromotedProducts']);
+    Route::get('/products/new', [ProductController::class, 'listNewProducts']);
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -144,11 +150,6 @@ Route::prefix('v1')->group(function () {
 
 
     });
-    Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
-    Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
-    Route::get('/categories/popular', [CategoryController::class, 'listPopularCategories']);
-    Route::get('/products/promoted', [ProductController::class, 'listPromotedProducts']);
-    Route::get('/products/new', [ProductController::class, 'listNewProducts']);
 });
 
 
