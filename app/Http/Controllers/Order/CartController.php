@@ -87,7 +87,7 @@ class CartController extends Controller
         }
         // dd('here');
         // Traitement du paiement
-        $paymentResult = $this->paymentService->processPayment($totalPrice, 'XAF', [
+        $paymentResult = $this->paymentService->processPayment((int)$totalPrice, 'XAF', [
             'verify' => false, // Disable SSL verification
         ]);
 
