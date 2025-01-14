@@ -48,7 +48,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/categories/popular', [CategoryController::class, 'listPopularCategories']);
     Route::get('/products/promoted', [ProductController::class, 'listPromotedProducts']);
     Route::get('/products/new', [ProductController::class, 'listNewProducts']);
-    Route::get('/products/{id}', [ProductController::class, 'show']);
+    Route::get('/products/details/{id}', [ProductController::class, 'show']);
     Route::get('/products/sub-category/{sub_category_id}', [ProductController::class, 'listBySubCategory']);
 
 
