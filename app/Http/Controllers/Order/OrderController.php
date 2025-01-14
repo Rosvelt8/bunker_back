@@ -30,11 +30,14 @@ class OrderController extends Controller
         foreach ($paidOrders as $order) {
             $items = OrderProducts::where('order_id', $order->idorder)->with('product')->get();
             foreach ($items as $item) {
-                $salerProduct = SalerProduct::where('saler_id', $request->user()->id)
-                                            ->where('product_id', $item->product_id)
-                                            ->first();
-                if ($salerProduct) {
-                    $orderItems[] = $item;
+                if($item->status=="available"){
+                    $salerProduct = SalerProduct::where('saler_id', $request->user()->id)
+                                                ->where('product_id', $item->product_id)
+                                                ->first();
+                    if ($salerProduct) {
+                        $orderItems[] = $item;
+                    }
+
                 }
             }
         }
