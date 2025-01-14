@@ -139,15 +139,15 @@ Route::prefix('v1')->group(function () {
         Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
         Route::post('/checkout', [CartController::class, 'checkout']);
 
-        
 
-        Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
-        Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
-        Route::get('/categories/popular', [CategoryController::class, 'listPopularCategories']);
-        Route::get('/products/promoted', [ProductController::class, 'listPromotedProducts']);
-        Route::get('/products/new', [ProductController::class, 'listNewProducts']);
+
 
     });
+    Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
+    Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
+    Route::get('/categories/popular', [CategoryController::class, 'listPopularCategories']);
+    Route::get('/products/promoted', [ProductController::class, 'listPromotedProducts']);
+    Route::get('/products/new', [ProductController::class, 'listNewProducts']);
 });
 
 
