@@ -89,6 +89,7 @@ class OrderController extends Controller
         $salerId = $request->user()->id;
         $readyItems = OrderProducts::where('saler_id', $salerId)
                                     ->where('status', 'ready')
+                                    ->with('product')
                                     ->get();
 
         return response()->json($readyItems);
