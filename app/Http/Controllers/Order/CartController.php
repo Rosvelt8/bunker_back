@@ -109,7 +109,7 @@ class CartController extends Controller
 
             foreach ($cartItems as $item) {
                 OrderProducts::create([
-                    'order_id' => $order->id,
+                    'order_id' => $order->idorder,
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
                     'price' => $item->product->price,
@@ -119,7 +119,7 @@ class CartController extends Controller
             // dd($totalPrice);
             // Enregistrer la transaction dans la table payment
             Payment::create([
-                'order_id' => $order->id,
+                'order_id' => $order->idorder,
                 'amount' => $totalPrice,
                 'payment_method' => 'cinetpay',
                 'status' => 'pending',

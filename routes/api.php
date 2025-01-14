@@ -43,6 +43,7 @@ Route::prefix('v1')->group(function () {
     })->name('password.reset');
     Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail']);
 
+    // Public routes
     Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
     Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
     Route::get('/categories/popular', [CategoryController::class, 'listPopularCategories']);
@@ -50,6 +51,12 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/new', [ProductController::class, 'listNewProducts']);
     Route::get('/products/details/{id}', [ProductController::class, 'show']);
     Route::get('/products/sub-category/{sub_category_id}', [ProductController::class, 'listBySubCategory']);
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/sub-categories', [SubCategoryController::class, 'index']);
+    Route::get('/products', [ProductController::class, 'index']);
+
+
+
 
 
     Route::middleware('auth:sanctum')->group(function () {
@@ -116,7 +123,6 @@ Route::prefix('v1')->group(function () {
             Route::delete('/cities/{id}', [CityController::class, 'destroy']);
 
             // ****************CRUD CATEGORY
-            Route::get('/categories', [CategoryController::class, 'index']);
             Route::post('/categories', [CategoryController::class, 'store']);
             Route::get('/categories/{id}', [CategoryController::class, 'show']);
             Route::post('/categories/{id}', [CategoryController::class, 'update']);
