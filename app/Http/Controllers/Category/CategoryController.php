@@ -17,12 +17,6 @@ class CategoryController extends Controller
         return response()->json($categories);
     }
 
-    public function indexWithSubCategories()
-    {
-        $categories = Category::with('subCategories')->get();
-        return response()->json($categories);
-    }
-
     /**
      * Créer une nouvelle catégorie
      */
@@ -179,17 +173,10 @@ class CategoryController extends Controller
      */
     public function listPopularCategories()
     {
-        $popularCategories = Category::with(['subCategories.products'])
-                                     ->get()
-                                     ->map(function ($category) {
-                                         $category->products_count = $category->subCategories->sum(function ($subCategory) {
-                                             return $subCategory->products->count();
-                                         });
-                                         return $category;
-                                     })
-                                     ->sortByDesc('products_count')
+        $popularCategories = Category::withCount('products')
+                                     ->orderBy('products_count', 'desc')
                                      ->take(3)
-                                     ->values();
+                                     ->get();
 
         return response()->json($popularCategories);
     }

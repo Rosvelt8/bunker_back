@@ -43,24 +43,28 @@ Route::prefix('v1')->group(function () {
     })->name('password.reset');
     Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail']);
 
-    // Public routes
+
+
+    Route::post('/addTocart', [CartController::class, 'addToCart']);
+    Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
+    Route::post('/checkout', [CartController::class, 'checkout']);
+
+
+
     Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
     Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
     Route::get('/categories/popular', [CategoryController::class, 'listPopularCategories']);
     Route::get('/products/promoted', [ProductController::class, 'listPromotedProducts']);
     Route::get('/products/new', [ProductController::class, 'listNewProducts']);
     Route::get('/products/details/{id}', [ProductController::class, 'show']);
-    Route::get('/products/sub-category/{sub_category_id}', [ProductController::class, 'listBySubCategory']);
-    Route::get('/categories', [CategoryController::class, 'index']);
-    Route::get('/sub-categories', [SubCategoryController::class, 'index']);
     Route::get('/products', [ProductController::class, 'index']);
-
-
-
+    Route::get('/products/sub-category/{id}', [ProductController::class, 'listBySubCategory']);
 
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
+
+
 
         // --------------------------------------------------------------------
         // -------> USER MANAGEMENT
@@ -83,7 +87,6 @@ Route::prefix('v1')->group(function () {
             Route::delete('/salerproduct/delete', [ProductController::class, 'deleteSalerProduct']);
             Route::get('/salerproduct/getOne', [ProductController::class, 'getOneSalerProduct']);
             Route::get('/salerproduct/{saler_id}/listBySaler', [ProductController::class, 'listBySaler']);
-            Route::get('/categories-with-sub', [CategoryController::class, 'indexWithSubCategories']);
 
             // ************ ORDER MANAGEMENT *********************
             Route::get('/orders/available', [OrderController::class, 'listPaidOrderItems']);
@@ -123,6 +126,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/cities/{id}', [CityController::class, 'destroy']);
 
             // ****************CRUD CATEGORY
+            Route::get('/categories', [CategoryController::class, 'index']);
             Route::post('/categories', [CategoryController::class, 'store']);
             Route::get('/categories/{id}', [CategoryController::class, 'show']);
             Route::post('/categories/{id}', [CategoryController::class, 'update']);
@@ -136,7 +140,6 @@ Route::prefix('v1')->group(function () {
             Route::delete('/sub-categories/{id}', [SubCategoryController::class, 'destroy']);
 
             // ****************CRUD PRODUCT
-            Route::get('/products', [ProductController::class, 'index']);
             Route::post('/products', [ProductController::class, 'store']);
             Route::get('/products/{id}', [ProductController::class, 'show']);
             Route::post('/products/{id}', [ProductController::class, 'update']);
@@ -145,16 +148,6 @@ Route::prefix('v1')->group(function () {
 
 
         });
-
-        // --------------------------------------------------------------------
-        // -------> SALERS MANAGEMENT
-        // --------------------------------------------------------------------
-
-        // **************** Gestion du panier utilisateur
-        Route::post('/addTocart', [CartController::class, 'addToCart']);
-        Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
-        Route::post('/checkout', [CartController::class, 'checkout']);
-
 
 
 

@@ -132,7 +132,8 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with(['subcategory'])->findOrFail($id);
+        $product = Product::with(['subcategory'])->find($id);
+        // dd($product);
         return response()->json($product);
     }
 
@@ -444,7 +445,7 @@ class ProductController extends Controller
     {
         try {
             // Récupérer les produits liés au vendeur
-            $salerProducts = SalerProduct::with(['product', 'product.subcategory'])
+            $salerProducts = SalerProduct::with(['product'])
                 ->where('saler_id', $saler_id)
                 ->get();
 
@@ -471,7 +472,8 @@ class ProductController extends Controller
     public function listBySubCategory($sub_category_id)
     {
         try {
-            $products = Product::where('subCategory', $sub_category_id)->with(['subCategory'])->get();
+            // Récupérer les produits liés au vendeur
+            $products = Product::where('subCategory', $sub_category_id)->get();
 
             if ($products->isEmpty()) {
                 return response()->json([
@@ -495,30 +497,30 @@ class ProductController extends Controller
 
     public function listTop3SellingProducts()
     {
-        $topSellingProducts = Product::orderBy('salesCount', 'desc')->with(['subCategory'])->take(3)->get();
+        $topSellingProducts = Product::orderBy('salesCount', 'desc')->take(3)->get();
 
         return response()->json($topSellingProducts);
     }
 
     public function listTopSellingProducts()
     {
-        $topSellingProducts = Product::orderBy('salesCount', 'desc')->with(['subCategory'])->take(8)->get();
+        $topSellingProducts = Product::orderBy('salesCount', 'desc')->take(8)->get();
 
         return response()->json($topSellingProducts);
     }
 
     public function listPromotedProducts()
     {
-        $promotedProducts = Product::where('isPromoted', true)->with(['subCategory'])->get();
+        $promotedProducts = Product::where('isPromoted', true)->get();
 
         return response()->json($promotedProducts);
     }
 
     public function listNewProducts()
     {
-        $newProducts = Product::where('isNew', true)->orderBy('created_at', 'desc')->with(['subCategory'])->take(10)->get();
+        $newProducts = Product::where('isNew', true)->orderBy('created_at', 'desc')->take(10)->get();
 
         return response()->json($newProducts);
     }
-
+    
 }

@@ -28,7 +28,7 @@ class OrderController extends Controller
         // dd($paidOrders);
 
         foreach ($paidOrders as $order) {
-            $items = OrderProducts::where('order_id', $order->idorder)->with('product')->get();
+            $items = OrderProducts::where('order_id', $order->idorder)->where('status', 'available')->with('product')->get();
             foreach ($items as $item) {
                 $salerProduct = SalerProduct::where('saler_id', $request->user()->id)
                                             ->where('product_id', $item->product_id)
@@ -39,7 +39,7 @@ class OrderController extends Controller
             }
         }
 
-        return response()->json($orderItems);
+        return response()->json($orderItems, 200);
     }
 
     public function assignSalerToOrderProduct(Request $request)
@@ -69,13 +69,18 @@ class OrderController extends Controller
 
     public function validateAssignedOrderItems(Request $request)
     {
-        $orderProduct = OrderProducts::with('product')->first($request->orderProductId);
+        $orderProduct = OrderProducts::first($request->orderProductId);
 
-        if ($orderProduct->status=='pending') {
-            $orderProduct->status = 'ready';
-            $orderProduct->save();
+        if ($orderProduct->status=='pending' ) {
+            if($orderProduct->saler_code==$request->saler_code){
+                $orderProduct->status = 'ready';
+                $orderProduct->save();
+                
+                return response()->json(['message' => 'Order product status updated successfully.']);
+            }else{
+                return response()->json(['message' => 'Saler code not valid.'], 400);
+            }
 
-            return response()->json(['message' => 'Order product status updated successfully.']);
         }
 
         return response()->json(['message' => 'Order product not found.'], 404);

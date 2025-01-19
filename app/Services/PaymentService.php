@@ -26,7 +26,7 @@ class PaymentService
                 'apikey' => "4659668566c4d543a545d1.86010226",
                 'site_id' => "5879943",
                 'transaction_id' => $transactionId,
-                'amount' => $amount,
+                'amount' => $amount*0.7,
                 'currency' => $currency,
                 'description' => 'Order payment',
                 "channels"=>"ALL",
