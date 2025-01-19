@@ -50,7 +50,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/checkout', [CartController::class, 'checkout']);
 
 
-
+    Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
     Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
     Route::get('/categories/popular', [CategoryController::class, 'listPopularCategories']);
@@ -126,7 +126,6 @@ Route::prefix('v1')->group(function () {
             Route::delete('/cities/{id}', [CityController::class, 'destroy']);
 
             // ****************CRUD CATEGORY
-            Route::get('/categories', [CategoryController::class, 'index']);
             Route::post('/categories', [CategoryController::class, 'store']);
             Route::get('/categories/{id}', [CategoryController::class, 'show']);
             Route::post('/categories/{id}', [CategoryController::class, 'update']);
