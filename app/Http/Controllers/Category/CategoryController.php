@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 class CategoryController extends Controller
 {
     /**
-     * Liste des catégories
+     * Liste des catégories avec leurs sous-catégories
      */
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::with('subcategories')->get();
         return response()->json($categories);
     }
 
