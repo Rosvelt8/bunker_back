@@ -196,7 +196,7 @@ class CategoryController extends Controller
                 return $subCategory->products->sum('salesCount');
             });
             return $category;
-        })->sortByDesc('total_sales')->take(8)->values();
+        })->sortByDesc('total_sales')->take(6)->values();
 
         return response()->json($categories);
     }
