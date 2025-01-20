@@ -101,8 +101,9 @@ class CartController extends Controller
                 'user_id' => $userId,
                 'total_price' => $totalPrice,
                 'status' => 'on_hold',
-                'delivery_cost' => 0.1,
-                'delivery_location'=> 'douala',
+                'delivery_cost' => 2000,
+                'delivery_location'=> $request->delivery_location,
+                'instructions'=> $request->instructions,
                 'payment_status' => 'completed', // Paiement réussi
                 'transaction_reference' => $paymentResult['transaction_reference'],
             ]);
