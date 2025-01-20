@@ -13,6 +13,7 @@ use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\SubCategory\SubCategoryController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Settings\SettingController;
 
 
 Route::get('images/{filename}', function ($filename) {
@@ -48,6 +49,10 @@ Route::prefix('v1')->group(function () {
     Route::post('/addTocart', [CartController::class, 'addToCart']);
     Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
     Route::post('/checkout', [CartController::class, 'checkout']);
+
+    // ****************SETTINGS
+    Route::get('/settings', [SettingController::class, 'getSettings']);
+    Route::put('/settings', [SettingController::class, 'updateSettings']);
 
 
     Route::get('/categories', [CategoryController::class, 'index']);
@@ -146,6 +151,7 @@ Route::prefix('v1')->group(function () {
             Route::put('/products/{id}', [ProductController::class, 'updateInStock']);
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
+            
 
         });
 
