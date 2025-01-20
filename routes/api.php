@@ -52,7 +52,7 @@ Route::prefix('v1')->group(function () {
 
     // ****************SETTINGS
     Route::get('/settings', [SettingController::class, 'getSettings']);
-    Route::put('/settings', [SettingController::class, 'updateSettings']);
+    Route::post('/settings', [SettingController::class, 'updateSettings']);
 
 
     Route::get('/categories', [CategoryController::class, 'index']);
