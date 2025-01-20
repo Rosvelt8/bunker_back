@@ -497,30 +497,61 @@ class ProductController extends Controller
 
     public function listTop3SellingProducts()
     {
-        $topSellingProducts = Product::orderBy('salesCount', 'desc')->take(3)->get();
+        $topSellingProducts = Product::orderBy('salesCount', 'desc')->with(['subCategory'])->take(3)->get();
 
         return response()->json($topSellingProducts);
     }
 
     public function listTopSellingProducts()
     {
-        $topSellingProducts = Product::orderBy('salesCount', 'desc')->take(8)->get();
+        $topSellingProducts = Product::orderBy('salesCount', 'desc')->with(['subCategory'])->take(8)->get();
 
         return response()->json($topSellingProducts);
     }
 
     public function listPromotedProducts()
     {
-        $promotedProducts = Product::where('isPromoted', true)->get();
+        $promotedProducts = Product::where('isPromoted', true)->with(['subCategory'])->get();
 
         return response()->json($promotedProducts);
     }
 
     public function listNewProducts()
     {
-        $newProducts = Product::where('isNew', true)->orderBy('created_at', 'desc')->take(10)->get();
+        $newProducts = Product::where('isNew', true)->orderBy('created_at', 'desc')->with(['subCategory'])->take(10)->get();
 
         return response()->json($newProducts);
+    }
+
+    /**
+     * Liste les produits ajoutés par un vendeur spécifique.
+     *
+     * @param int $seller_id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function listProductsBySeller($seller_id)
+    {
+        try {
+            $products = Product::where('created_by', $seller_id)->with(['subCategory'])->get();
+
+            if ($products->isEmpty()) {
+                return response()->json([
+                    'message' => 'Aucun produit trouvé pour ce vendeur.',
+                    'data' => [],
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Liste des produits du vendeur récupérée avec succès.',
+                'data' => $products,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la récupération des produits.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
     
 }
