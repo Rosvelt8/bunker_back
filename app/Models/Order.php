@@ -11,7 +11,7 @@ class Order extends Model
     use HasFactory;
     protected $primaryKey = 'idorder';
 
-    protected $fillable = ['user_id', 'total_price', 'status', 'saler_code'];
+    protected $fillable = ['user_id', 'total_price', 'status', 'saler_code', 'delivery_location','amount_paid', 'instructions'];
 
     public static function boot()
     {

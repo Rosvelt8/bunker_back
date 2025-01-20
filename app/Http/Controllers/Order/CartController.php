@@ -105,7 +105,6 @@ class CartController extends Controller
                 'delivery_cost' => 2000,
                 'delivery_location'=> $request->delivery_location,
                 'instructions'=> $request->instructions,
-                'payment_status' => 'completed', // Paiement réussi
                 'transaction_reference' => $paymentResult['transaction_reference'],
             ]);
 
