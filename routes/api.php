@@ -45,11 +45,6 @@ Route::prefix('v1')->group(function () {
     Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail']);
 
 
-
-    Route::post('/addTocart', [CartController::class, 'addToCart']);
-    Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
-    Route::post('/checkout', [CartController::class, 'checkout']);
-
     // ****************SETTINGS
     Route::get('/settings', [SettingController::class, 'getSettings']);
     Route::post('/settings', [SettingController::class, 'updateSettings']);
@@ -71,7 +66,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
 
-
+        Route::post('/addTocart', [CartController::class, 'addToCart']);
+        Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
+        Route::post('/checkout', [CartController::class, 'checkout']);
         // --------------------------------------------------------------------
         // -------> USER MANAGEMENT
         // --------------------------------------------------------------------

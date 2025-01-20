@@ -28,10 +28,10 @@ class CartController extends Controller
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
         ]);
-
         $cartItem = CartItem::where('user_id', $request->user()->id)
-                            ->where('product_id', $request->product_id)
-                            ->first();
+        ->where('product_id', $request->product_id)
+        ->first();
+
 
         if ($cartItem) {
             $cartItem->quantity += $request->quantity;
