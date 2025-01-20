@@ -473,7 +473,7 @@ class ProductController extends Controller
     {
         try {
             // Récupérer les produits liés au vendeur
-            $products = Product::where('subCategory', $sub_category_id)->get();
+            $products = Product::where('subCategory', $sub_category_id)->with(['subcategory'])->get();
 
             if ($products->isEmpty()) {
                 return response()->json([
