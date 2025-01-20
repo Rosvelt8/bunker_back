@@ -59,6 +59,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/details/{id}', [ProductController::class, 'show']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/sub-category/{id}', [ProductController::class, 'listBySubCategory']);
+    Route::get('/products/{product_id}/sellers', [ProductController::class, 'listSellersByProduct']);
 
 
     Route::middleware('auth:sanctum')->group(function () {

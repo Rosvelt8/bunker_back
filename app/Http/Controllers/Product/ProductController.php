@@ -133,8 +133,14 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = Product::with(['subcategory'])->find($id);
-        // dd($product);
-        return response()->json($product);
+        if($product){
+            
+            $product->total_quantity = $product->total_quantity; // Ensure total_quantity is calculated
+            return response()->json($product);
+        }
+        return response()->json([
+            'message' => 'Product not found',
+        ], 404);
     }
 
     /**
@@ -529,29 +535,30 @@ class ProductController extends Controller
      * @param int $seller_id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function listProductsBySeller($seller_id)
+    public function listSellersByProduct($product_id)
     {
         try {
-            $products = Product::where('created_by', $seller_id)->with(['subCategory'])->get();
+            $sellers = SalerProduct::where('product_id', $product_id)
+                                   ->with('saler')
+                                   ->get();
 
-            if ($products->isEmpty()) {
+            if ($sellers->isEmpty()) {
                 return response()->json([
-                    'message' => 'Aucun produit trouvé pour ce vendeur.',
+                    'message' => 'Aucun vendeur trouvé pour ce produit.',
                     'data' => [],
                 ], 404);
             }
 
             return response()->json([
-                'message' => 'Liste des produits du vendeur récupérée avec succès.',
-                'data' => $products,
+                'message' => 'Liste des vendeurs pour le produit récupérée avec succès.',
+                'data' => $sellers,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Erreur lors de la récupération des produits.',
+                'message' => 'Erreur lors de la récupération des vendeurs.',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
-    
 }
