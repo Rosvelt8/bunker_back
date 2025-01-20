@@ -53,13 +53,13 @@ Route::prefix('v1')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
     Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
-    Route::get('/categories/popular', [CategoryController::class, 'listPopularCategories']);
     Route::get('/products/promoted', [ProductController::class, 'listPromotedProducts']);
     Route::get('/products/new', [ProductController::class, 'listNewProducts']);
     Route::get('/products/details/{id}', [ProductController::class, 'show']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/sub-category/{id}', [ProductController::class, 'listBySubCategory']);
     Route::get('/products/{product_id}/sellers', [ProductController::class, 'listSellersByProduct']);
+    Route::get('/categories/top-selling', [CategoryController::class, 'listTopSellingCategories']);
 
 
     Route::middleware('auth:sanctum')->group(function () {

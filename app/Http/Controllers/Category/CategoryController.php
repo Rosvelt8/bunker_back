@@ -180,5 +180,25 @@ class CategoryController extends Controller
 
         return response()->json($popularCategories);
     }
+
+    /**
+     * Liste des catégories des produits les plus vendus
+     */
+    public function listTopSellingCategories()
+    {
+        // dd('here');
+        $categories = Category::with(['subCategories.products' => function ($query) {
+            $query->orderBy('salesCount', 'desc');
+        }])->get();
+
+        $categories = $categories->map(function ($category) {
+            $category->total_sales = $category->subCategories->sum(function ($subCategory) {
+                return $subCategory->products->sum('salesCount');
+            });
+            return $category;
+        })->sortByDesc('total_sales')->values();
+
+        return response()->json($categories);
+    }
     
 }
