@@ -80,7 +80,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/beDeliver', [UserController::class, 'BecomeDeliver']);
         Route::post('/beSaler', [UserController::class, 'BecomeSaler']);
 
-
+        Route::get('/user/orders', [OrderController::class, 'listUserOrders']);
 
         Route::middleware('seller')->group(function () {
 

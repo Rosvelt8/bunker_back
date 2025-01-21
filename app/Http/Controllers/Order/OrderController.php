@@ -96,4 +96,15 @@ class OrderController extends Controller
         return response()->json($readyItems);
     }
 
+    /**
+     * List all orders of a specific user
+     */
+    public function listUserOrders(Request $request)
+    {
+        $userId = $request->user()->id;
+        $orders = Order::where('user_id', $userId)->with('items.product')->get();
+
+        return response()->json($orders);
+    }
+
 }
