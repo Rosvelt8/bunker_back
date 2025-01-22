@@ -451,7 +451,7 @@ class ProductController extends Controller
     {
         try {
             // Récupérer les produits liés au vendeur
-            $salerProducts = SalerProduct::with(['product'])
+            $salerProducts = SalerProduct::with(['product.subcategory'])
                 ->where('saler_id', $saler_id)
                 ->get();
 

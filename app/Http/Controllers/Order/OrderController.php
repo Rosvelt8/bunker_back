@@ -167,12 +167,28 @@ class OrderController extends Controller
         return response()->json(['message' => 'Order delivered successfully.']);
     }
 
-    public function listDeliveredOrders(Request $request)
+    public function listInDeliveringOrders(Request $request)
     {
         // Get all orders with status 'delivered'
-        $deliveredOrders = Order::with('items.product')->with('user')->where('status', 'delivered')->get();
+        $deliveredOrders = Order::with('items.product')->with('user')->where('deliver_id', $request->user()->id)->where('status', 'in_delivery')->get();
 
         return response()->json($deliveredOrders);
+    }
+
+    public function deliverOrder(Request $request, $orderId)
+    {
+        // Find the order
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found.'], 404);
+        }
+
+        // Deliver the order
+        $order->status = 'booked';
+        $order->save();
+
+        return response()->json(['message' => 'Order delivered successfully.']);
     }
 
 
