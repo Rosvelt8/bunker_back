@@ -107,4 +107,36 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
+    /**
+     * Cancel an order
+     */
+    public function cancelOrder(Request $request, $orderId)
+    {
+
+        // Find the order
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found.'], 404);
+        }
+
+        // Cancel the order
+        $order->status = 'cancelled';
+        $order->save();
+
+        return response()->json(['message' => 'Order cancelled successfully.']);
+    }
+
+    /**
+     * List all orders
+     */
+    public function listAllOrders(Request $request)
+    {
+
+        // Get all orders
+        $orders = Order::with('items.product')->with('user')->get();
+
+        return response()->json($orders);
+    }
+
 }

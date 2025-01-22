@@ -49,6 +49,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/settings', [SettingController::class, 'getSettings']);
     Route::post('/settings', [SettingController::class, 'updateSettings']);
 
+    Route::post('/orders/{orderId}/cancel', [OrderController::class, 'cancelOrder']);
+    Route::get('/orders', [OrderController::class, 'listAllOrders']);
+
 
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
