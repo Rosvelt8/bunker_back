@@ -156,6 +156,13 @@ Route::prefix('v1')->group(function () {
         });
 
 
+        Route::get('/orders/deliver_ready', [OrderController::class, 'listReadyOrdersForDeliver']);
+        Route::post('/orders/{orderId}/deliver_assign', [OrderController::class, 'assignOrderToDeliver']);
+        Route::get('/orders/in-delivery', [OrderController::class, 'listInDeliveringOrders']);
+        Route::post('/orders/{orderId}/deliver', [OrderController::class, 'deliverOrder']);
+        Route::get('/orders/deliver_history', [OrderController::class, 'listInDeliveringOrders']);
+
+
 
     });
 });

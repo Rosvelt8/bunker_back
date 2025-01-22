@@ -191,6 +191,14 @@ class OrderController extends Controller
         return response()->json(['message' => 'Order delivered successfully.']);
     }
 
+    public function deliverHistory(Request $request)
+    {
+        // Get all orders with status 'delivered'
+        $deliveredOrders = Order::with('items.product')->with('user')->where('deliver_id', $request->user()->id)->where('status', 'booked')->get();
+
+        return response()->json($deliveredOrders);
+    }
+
 
 
 }
