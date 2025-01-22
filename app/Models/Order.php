@@ -13,6 +13,14 @@ class Order extends Model
 
     protected $fillable = ['user_id', 'total_price', 'status', 'saler_code', 'delivery_location','amount_paid', 'instructions'];
 
+    public $orderNumber;
+    
+    // Accessor for order number
+    public function getOrderNumberAttribute()
+    {
+        return 'ORD-' . $this->idorder . '-' . $this->created_at->format('Ymd');
+    }
+
     public static function boot()
     {
         parent::boot();
@@ -20,6 +28,12 @@ class Order extends Model
         static::creating(function ($order) {
             $order->saler_code = self::generateUniqueSalerCode();
         });
+    }
+
+    public function __construct()
+    {
+        parent::__construct();
+
     }
 
     public static function generateUniqueSalerCode()
@@ -41,11 +55,14 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Accessor for order number
-    public function getOrderNumberAttribute()
+    public function toArray()
     {
-        return 'ORD-' . $this->idorder . '-' . $this->created_at->format('Ymd');
+        $array = parent::toArray();
+        $paddedId = str_pad($this->idorder, 5, '0', STR_PAD_LEFT);
+        $array['orderNumber'] = 'BUNK' .$this->created_at->format('Ymd'). $paddedId;
+        return $array;
     }
+
 
     public function updateStatusIfAllItemsReady()
     {
