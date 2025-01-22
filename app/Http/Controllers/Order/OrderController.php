@@ -69,10 +69,10 @@ class OrderController extends Controller
 
     public function validateAssignedOrderItems(Request $request)
     {
-        $orderProduct = OrderProducts::first($request->orderProductId);
+        $orderProduct = OrderProducts::find($request->orderProductId);
         $order= Order::find($orderProduct->order_id);
         if ($orderProduct->status=='pending') {
-            if($orderProduct->saler_code==$request->saler_code){
+            if($order->saler_code===$request->saler_code){
                 $orderProduct->status = 'ready';
                 $orderProduct->save();
                 
