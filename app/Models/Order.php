@@ -46,4 +46,16 @@ class Order extends Model
     {
         return 'ORD-' . $this->idorder . '-' . $this->created_at->format('Ymd');
     }
+
+    public function updateStatusIfAllItemsReady()
+    {
+        $allItemsReady = $this->items->every(function ($item) {
+            return $item->status === 'ready';
+        });
+
+        if ($allItemsReady) {
+            $this->status = 'ready';
+            $this->save();
+        }
+    }
 }
