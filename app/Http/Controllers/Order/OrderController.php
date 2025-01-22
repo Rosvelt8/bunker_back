@@ -93,6 +93,7 @@ class OrderController extends Controller
         $salerId = $request->user()->id;
         $readyItems = OrderProducts::where('saler_id', $salerId)
                                     ->where('status', 'ready')
+                                    ->with('product')
                                     ->get();
 
         return response()->json($readyItems);
@@ -140,5 +141,40 @@ class OrderController extends Controller
 
         return response()->json($orders);
     }
+
+    public function listReadyOrdersForDeliver(Request $request)
+    {
+        // Get all orders with status 'ready'
+        $readyOrders = Order::with('items.product')->with('user')->where('status', 'ready')->get();
+
+        return response()->json($readyOrders);
+    }
+
+    public function assignOrderToDeliver(Request $request, $orderId)
+    {
+        // Find the order
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found.'], 404);
+        }
+
+        // Deliver the order
+        $order->status = 'in_delivery';
+        $order->deliver_id= $request->user()->id;
+        $order->save();
+
+        return response()->json(['message' => 'Order delivered successfully.']);
+    }
+
+    public function listDeliveredOrders(Request $request)
+    {
+        // Get all orders with status 'delivered'
+        $deliveredOrders = Order::with('items.product')->with('user')->where('status', 'delivered')->get();
+
+        return response()->json($deliveredOrders);
+    }
+
+
 
 }
