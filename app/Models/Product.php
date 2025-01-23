@@ -48,4 +48,12 @@ class Product extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    /**
+     * Accessor for total quantity
+     */
+    public function getTotalQuantityAttribute()
+    {
+        return $this->hasMany(SalerProduct::class, 'product_id')->sum('quantity');
+    }
 }

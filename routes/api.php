@@ -6,11 +6,14 @@ use Illuminate\Support\Facades\Response;
 
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Country\CountryController;
+use App\Http\Controllers\Order\CartController;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\City\CityController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\SubCategory\SubCategoryController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Settings\SettingController;
 
 
 Route::get('images/{filename}', function ($filename) {
@@ -41,9 +44,34 @@ Route::prefix('v1')->group(function () {
     })->name('password.reset');
     Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail']);
 
+
+    // ****************SETTINGS
+    Route::get('/settings', [SettingController::class, 'getSettings']);
+    Route::post('/settings', [SettingController::class, 'updateSettings']);
+
+    Route::post('/orders/{orderId}/cancel', [OrderController::class, 'cancelOrder']);
+    Route::get('/orders', [OrderController::class, 'listAllOrders']);
+
+
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
+    Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
+    Route::get('/products/promoted', [ProductController::class, 'listPromotedProducts']);
+    Route::get('/products/new', [ProductController::class, 'listNewProducts']);
+    Route::get('/products/details/{id}', [ProductController::class, 'show']);
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/sub-category/{id}', [ProductController::class, 'listBySubCategory']);
+    Route::get('/products/{product_id}/sellers', [ProductController::class, 'listSellersByProduct']);
+    Route::get('/categories/top-selling', [CategoryController::class, 'listTopSellingCategories']);
+
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
+
+        Route::post('/addTocart', [CartController::class, 'addToCart']);
+        Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
+        Route::post('/checkout', [CartController::class, 'checkout']);
         // --------------------------------------------------------------------
         // -------> USER MANAGEMENT
         // --------------------------------------------------------------------
@@ -55,12 +83,28 @@ Route::prefix('v1')->group(function () {
         Route::post('/beDeliver', [UserController::class, 'BecomeDeliver']);
         Route::post('/beSaler', [UserController::class, 'BecomeSaler']);
 
+        Route::get('/user/orders', [OrderController::class, 'listUserOrders']);
 
-       
         Route::middleware('seller')->group(function () {
 
+            // *********** PRODUCT MANAGEMENT********************
+
+            Route::post('/saler/upsert', [ProductController::class, 'upsert']);
+            Route::delete('/salerproduct/delete', [ProductController::class, 'deleteSalerProduct']);
+            Route::get('/salerproduct/getOne', [ProductController::class, 'getOneSalerProduct']);
+            Route::get('/salerproduct/{saler_id}/listBySaler', [ProductController::class, 'listBySaler']);
+
+            // ************ ORDER MANAGEMENT *********************
+            Route::get('/orders/available', [OrderController::class, 'listPaidOrderItems']);
+            Route::post('/orders/subscribe', [OrderController::class, 'assignSalerToOrderProduct']);
+            Route::get('/orders/subscribed', [OrderController::class, 'listAssignedOrderItems']);
+            Route::post('/orders/validate', [OrderController::class, 'validateAssignedOrderItems']);
+            Route::get('/orders/history', [OrderController::class, 'historyOrderItemsBySaler']);
+
+
+
         });
-        
+
         Route::middleware(['admin', 'seller'])->group(function () {
             Route::get('/users', [UserController::class, 'index']);
             Route::get('/getRequests', [UserController::class, 'listRequests']);
@@ -88,7 +132,6 @@ Route::prefix('v1')->group(function () {
             Route::delete('/cities/{id}', [CityController::class, 'destroy']);
 
             // ****************CRUD CATEGORY
-            Route::get('/categories', [CategoryController::class, 'index']);
             Route::post('/categories', [CategoryController::class, 'store']);
             Route::get('/categories/{id}', [CategoryController::class, 'show']);
             Route::post('/categories/{id}', [CategoryController::class, 'update']);
@@ -102,21 +145,25 @@ Route::prefix('v1')->group(function () {
             Route::delete('/sub-categories/{id}', [SubCategoryController::class, 'destroy']);
 
             // ****************CRUD PRODUCT
-            Route::get('/products', [ProductController::class, 'index']);
             Route::post('/products', [ProductController::class, 'store']);
             Route::get('/products/{id}', [ProductController::class, 'show']);
             Route::post('/products/{id}', [ProductController::class, 'update']);
             Route::put('/products/{id}', [ProductController::class, 'updateInStock']);
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
+            
 
         });
 
-        // --------------------------------------------------------------------
-        // -------> SALERS MANAGEMENT
-        // --------------------------------------------------------------------
 
-        
+        Route::get('/orders/deliver_ready', [OrderController::class, 'listReadyOrdersForDeliver']);
+        Route::post('/orders/{orderId}/deliver_assign', [OrderController::class, 'assignOrderToDeliver']);
+        Route::get('/orders/in-delivery', [OrderController::class, 'listInDeliveringOrders']);
+        Route::post('/orders/{orderId}/deliver', [OrderController::class, 'deliverOrder']);
+        Route::get('/orders/deliver_history', [OrderController::class, 'deliverHistory']);
+
+
+
     });
 });
 

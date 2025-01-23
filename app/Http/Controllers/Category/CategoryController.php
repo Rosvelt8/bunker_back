@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 class CategoryController extends Controller
 {
     /**
-     * Liste des catégories
+     * Liste des catégories avec leurs sous-catégories
      */
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::with('subcategories')->get();
         return response()->json($categories);
     }
 
@@ -166,6 +166,39 @@ class CategoryController extends Controller
         return response()->json([
             'message' => 'Category deleted successfully',
         ], 200);
+    }
+
+    /**
+     * Liste des catégories populaires
+     */
+    public function listPopularCategories()
+    {
+        $popularCategories = Category::withCount('products')
+                                     ->orderBy('products_count', 'desc')
+                                     ->take(3)
+                                     ->get();
+
+        return response()->json($popularCategories);
+    }
+
+    /**
+     * Liste des catégories des produits les plus vendus
+     */
+    public function listTopSellingCategories()
+    {
+        // dd('here');
+        $categories = Category::with(['subCategories.products' => function ($query) {
+            $query->orderBy('salesCount', 'desc');
+        }])->get();
+
+        $categories = $categories->map(function ($category) {
+            $category->total_sales = $category->subCategories->sum(function ($subCategory) {
+                return $subCategory->products->sum('salesCount');
+            });
+            return $category;
+        })->sortByDesc('total_sales')->take(6)->values();
+
+        return response()->json($categories);
     }
     
 }

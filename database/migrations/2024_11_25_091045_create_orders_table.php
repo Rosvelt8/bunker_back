@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('delivery_cost', 10, 2);
             $table->string('delivery_location');
             $table->text('instructions')->nullable();
-            $table->enum('status', ['on_hold', 'in_progress', 'ready', 'depot', 'in_delivery', 'booked'])->default('on_hold');
+            $table->enum('status', ['on_hold','paid', 'in_progress', 'ready','in_delivery', 'booked', 'cancelled'])->default('on_hold');
             $table->timestamps();
         });
     }
