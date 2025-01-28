@@ -374,18 +374,15 @@ class ProductController extends Controller
     }
 
 
-    public function deleteSalerProduct(Request $request)
+    public function deleteSalerProduct(Request $request, $id)
     {
-        // Validation des données
-        $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'saler_id' => 'required|exists:users,id',
-        ]);
+        $product_id= $id;
+        $saler_id = $request->user()->id;
 
         try {
             // Recherche d'un enregistrement existant
-            $salerProduct = SalerProduct::where('product_id', $validated['product_id'])
-                ->where('saler_id', $validated['saler_id'])
+            $salerProduct = SalerProduct::where('product_id', $product_id)
+                ->where('saler_id', $saler_id)
                 ->first();
 
             if ($salerProduct) {

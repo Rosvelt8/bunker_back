@@ -90,7 +90,7 @@ Route::prefix('v1')->group(function () {
             // *********** PRODUCT MANAGEMENT********************
 
             Route::post('/saler/upsert', [ProductController::class, 'upsert']);
-            Route::delete('/salerproduct/delete', [ProductController::class, 'deleteSalerProduct']);
+            Route::delete('/salerproduct/delete/{id}', [ProductController::class, 'deleteSalerProduct']);
             Route::get('/salerproduct/getOne', [ProductController::class, 'getOneSalerProduct']);
             Route::get('/salerproduct/{saler_id}/listBySaler', [ProductController::class, 'listBySaler']);
 
