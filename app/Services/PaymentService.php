@@ -17,7 +17,7 @@ class PaymentService
         $this->siteId = env('CINETPAY_SITE_ID');
     }
 
-    public function processPayment($amount, $currency, $options = [])
+    public function processPayment($amount,$description, $currency, $options = [])
     {
         $transactionId = uniqid('txn_');
         // dd($this->apiKey, $this->siteId);
@@ -28,7 +28,7 @@ class PaymentService
                 'transaction_id' => $transactionId,
                 'amount' => $amount,
                 'currency' => $currency,
-                'description' => 'Order payment',
+                'description' => $description,
                 "channels"=>"ALL",
                 'return_url' => route('payment.callback'),
                 'notify_url' => route('payment.notify'),

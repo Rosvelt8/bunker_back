@@ -14,6 +14,7 @@ use App\Http\Controllers\SubCategory\SubCategoryController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Settings\SettingController;
+use App\Http\Controllers\Suggestion\SuggestionController;
 
 
 Route::get('images/{filename}', function ($filename) {
@@ -85,6 +86,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/beSaler', [UserController::class, 'BecomeSaler']);
 
         Route::get('/user/orders', [OrderController::class, 'listUserOrders']);
+
+        Route::post('/suggestions', [SuggestionController::class, 'createSuggestion']);
+        Route::get('/suggestions', [SuggestionController::class, 'listSuggestions']);
 
         Route::middleware('seller')->group(function () {
 

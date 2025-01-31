@@ -23,7 +23,9 @@ class OrderController extends Controller
 
     public function listPaidOrderItems(Request $request)
     {
+        $user = $request->user();
         $paidOrders = Order::where('status', 'paid')->get();
+        $custumer= $pai
         $orderItems = [];
         // dd($paidOrders);
 
@@ -186,7 +188,7 @@ class OrderController extends Controller
         }
         $toPaid= Settings::getDeliveryAmount($order->total_price);
         // Traitement du paiement
-            $paymentResult = $this->paymentService->processPayment((int)$toPaid, 'XAF', [
+            $paymentResult = $this->paymentService->processPayment((int)$toPaid, "paiement à la livraison", 'XAF', [
                 'verify' => false, // Disable SSL verification
             ]);
             

@@ -104,7 +104,7 @@ class CartController extends Controller
         $toPaid= Settings::getOrderAmount($totalPrice);
         // dd('here');
         // Traitement du paiement
-        $paymentResult = $this->paymentService->processPayment((int)$toPaid, 'XAF', [
+        $paymentResult = $this->paymentService->processPayment((int)$toPaid, "Paiement à la commande", 'XAF', [
             'verify' => false, // Disable SSL verification
         ]);
 
