@@ -187,14 +187,18 @@ class OrderController extends Controller
         return response()->json($deliveredOrders);
     }
 
-    public function deliverOrder(Request $request, $orderId)
+    public function deliverOrder(Request $request)
     {
         
         // Find the order
-        $order = Order::find($orderId);
+        $order = Order::find($request->order);
 
         if (!$order) {
             return response()->json(['message' => 'Order not found.'], 404);
+        }
+        $userId = $request->user()->id;
+        if($order->user_id != $userId){
+            return response()->json(['message' => 'You are not the customer of this order.'], 403);
         }
         $toPaid= Settings::getDeliveryAmount($order->total_price);
         // Traitement du paiement
