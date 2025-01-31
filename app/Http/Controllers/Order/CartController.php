@@ -113,11 +113,11 @@ class CartController extends Controller
         }
 
         // Créer la commande et les items associés
-        DB::transaction(function () use ($userId, $request, $cartItems, $totalPrice ,$toPaid , $paymentResult) {
+        DB::transaction(function () use ($userId, $request,$deliveryCost, $cartItems, $totalPrice ,$toPaid , $paymentResult) {
             $order = Order::create([
                 'user_id' => $userId,
                 'total_price' => $totalPrice,
-                'amount_paid' => $toPaid,
+                'amount_paid' => 0,
                 'status' => 'on_hold',
                 'delivery_cost' =>$deliveryCost,
                 'delivery_location'=> $request->delivery_location,
@@ -193,8 +193,7 @@ class CartController extends Controller
                     if($order->status == 'in_delivery'){
                         $order->status = 'booked';
                     }
-
-                    $order->status = 'paid';
+                    $order->amount_paid+=$payment->amount;
                     $order->save();
                 }
             }

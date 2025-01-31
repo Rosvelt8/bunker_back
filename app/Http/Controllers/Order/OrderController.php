@@ -215,8 +215,6 @@ class OrderController extends Controller
             
         DB::transaction(function () use ($order, $request, $toPaid , $paymentResult) {
             // Deliver the order
-            $order->amount_paid += $toPaid;
-            $order->status = 'booked';
             $order->save();
 
             Payment::create([

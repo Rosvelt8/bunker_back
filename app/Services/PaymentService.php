@@ -30,7 +30,7 @@ class PaymentService
                 'currency' => $currency,
                 'description' => $description,
                 "channels"=>"ALL",
-                'return_url' => route('payment.callback'),
+                'return_url' => "https://bunker-shop.store/home",
                 'notify_url' => route('payment.notify'),
             ]
         ], $options));
