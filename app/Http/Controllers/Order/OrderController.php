@@ -177,6 +177,7 @@ class OrderController extends Controller
 
     public function deliverOrder(Request $request, $orderId)
     {
+        
         // Find the order
         $order = Order::find($orderId);
 
@@ -185,20 +186,35 @@ class OrderController extends Controller
         }
         $toPaid= Settings::getDeliveryAmount($order->total_price);
         // Traitement du paiement
-        $paymentResult = $this->paymentService->processPayment((int)$toPaid, 'XAF', [
-            'verify' => false, // Disable SSL verification
-        ]);
+            $paymentResult = $this->paymentService->processPayment((int)$toPaid, 'XAF', [
+                'verify' => false, // Disable SSL verification
+            ]);
+            
+            if ($paymentResult['status'] !== 'success') {
+                return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
+            }
+            
+        DB::transaction(function () use ($order, $request, $toPaid , $paymentResult) {
+            // Deliver the order
+            $order->amount_paid += $toPaid;
+            $order->status = 'booked';
+            $order->save();
 
-        if ($paymentResult['status'] !== 'success') {
-            return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
-        }
+            Payment::create([
+                'order_id' => $order->idorder,
+                'amount' => $toPaid,
+                'payment_method' => 'cinetpay',
+                'status' => 'pending',
+                'transaction_id' => $paymentResult['transaction_reference'],
+            ]);
+        
+        });
 
-        // Deliver the order
-        $order->amount_paid += $toPaid;
-        $order->status = 'booked';
-        $order->save();
-
-        return response()->json(['message' => 'Order delivered successfully.']);
+        return response()->json([
+            'message' => 'Delivery placed successfully',
+            'transaction_reference' => $paymentResult['transaction_reference'],
+            'payment_url' => $paymentResult['payment_url'],
+        ], 201);
     }
 
     public function deliverHistory(Request $request)
