@@ -187,8 +187,14 @@ class CartController extends Controller
                 // Update the order status
                 $order = Order::find($payment->order_id);
                 if ($order) {
+                    if($order->status == 'on_hold'){
+                        $order->status = 'paid';
+                    }
+                    if($order->status == 'in_delivery'){
+                        $order->status = 'booked';
+                    }
+
                     $order->status = 'paid';
-                    $order->salesCount += 1;
                     $order->save();
                 }
             }
@@ -202,7 +208,9 @@ class CartController extends Controller
                 // Update the order status
                 $order = Order::find($payment->order_id);
                 if ($order) {
-                    $order->status = 'unpaid';
+                     if($order->status == 'on_hold'){
+                        $order->status = 'unpaid';
+                    }
                     $order->save();
                 }
             }
