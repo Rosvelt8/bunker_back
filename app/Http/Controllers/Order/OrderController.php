@@ -19,7 +19,7 @@ class OrderController extends Controller
 
     public function __construct(PaymentService $paymentService)
     {
-        
+
         $this->paymentService = $paymentService;
     }
 

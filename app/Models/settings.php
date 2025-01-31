@@ -10,7 +10,7 @@ class Settings extends Model
     use HasFactory;
     protected $fillable = ['settings'];
 
-    public function getOrderAmount($amount){
+    public static function getOrderAmount($amount){
         $setting= Self::first();
 
         $rate= $setting->rate_pay_order;
@@ -20,7 +20,7 @@ class Settings extends Model
 
     }
 
-    public function getDeliveryAmount($amount){
+    public static function getDeliveryAmount($amount){
         $setting= Self::first();
 
         $rate= $setting->rate_pay_delivery;
