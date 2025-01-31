@@ -63,7 +63,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/sub-category/{id}', [ProductController::class, 'listBySubCategory']);
     Route::get('/products/{product_id}/sellers', [ProductController::class, 'listSellersByProduct']);
     Route::get('/categories/top-selling', [CategoryController::class, 'listTopSellingCategories']);
-
+    
+    Route::get('/cities', [CityController::class, 'index']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -104,7 +105,6 @@ Route::prefix('v1')->group(function () {
             
             
         });
-        Route::get('/cities', [CityController::class, 'index']);
 
         Route::middleware(['admin', 'seller'])->group(function () {
             Route::get('/users', [UserController::class, 'index']);
