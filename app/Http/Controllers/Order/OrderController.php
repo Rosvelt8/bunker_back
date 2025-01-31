@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderProducts;
 use App\Models\SalerProduct;
 use App\Models\Product;
+use App\Models\Settings;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ class OrderController extends Controller
 
     public function __construct(PaymentService $paymentService)
     {
+        
         $this->paymentService = $paymentService;
     }
 
