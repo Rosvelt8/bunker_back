@@ -9,6 +9,7 @@ use App\Models\OrderProducts;
 use App\Models\SalerProduct;
 use App\Models\Product;
 use App\Models\Settings;
+use App\Models\Payment;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
