@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CartItem;
 use App\Models\Order;
+use App\Models\Settings;
 use App\Models\OrderProducts;
 use App\Services\PaymentService;
 use Illuminate\Support\Facades\DB;
@@ -84,6 +85,10 @@ class CartController extends Controller
         $totalPrice = 0;
         foreach ($cartItems as $item) {
             $totalPrice += $item->product->price * $item->quantity;
+        }
+
+        if($request->delivery=="Y"){
+            $totalPrice= Settings::getOrderAmount($totalPrice);
         }
         // dd('here');
         // Traitement du paiement

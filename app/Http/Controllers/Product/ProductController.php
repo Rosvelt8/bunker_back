@@ -373,6 +373,45 @@ class ProductController extends Controller
         }
     }
 
+    public function promoteProduct(Request $request)
+    {
+        // Validation des données
+        dd('ok');
+        // $validated = $request->validate([
+        //     'product_id' => 'required|exists:products,id',
+        //     'originalPrice' => 'required|numeric|min:0',
+        //     'discountedPrice' => 'required|numeric|min:0',
+        //     'discount' => 'required|numeric|min:0|max:100',
+        //     'isPromoted' => 'required|boolean',
+        // ]);
+
+        try {
+            // Recherche d'un enregistrement existant
+            $product = Product::find($validated['product_id']);
+
+            if ($product) {
+                // Mise à jour des champs spécifiés
+                $product->update([
+                    'originalPrice' => $validated['originalPrice'],
+                    'discountedPrice' => $validated['discountedPrice'],
+                    'discount' => $validated['discount'],
+                    'isPromoted' => $validated['isPromoted'],
+                ]);
+
+                $message = 'Produit mis à jour avec succès.';
+            } else {
+                return response()->json(['message' => 'Product not found.'], 404);
+            }
+
+            return response()->json([
+                'message' => $message,
+                'data' => $product,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred.'], 500);
+        }
+    }
+
 
     public function deleteSalerProduct(Request $request, $id)
     {
