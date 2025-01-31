@@ -73,7 +73,16 @@ class CartController extends Controller
      * Valider la commande
      */
     public function checkout(Request $request)
+
     {
+
+        $request->validate([
+            'delivery' => 'required|boolean',
+            'city' => 'sometimes|exists:cities,id',
+            'delivery_location' => 'required|string',
+            'instructions' => 'required|string',
+        ]);
+        
         $userId = $request->user()->id;
         $cartItems = CartItem::where('user_id', $userId)->get();
 
@@ -83,16 +92,19 @@ class CartController extends Controller
 
         // Calcul du total
         $totalPrice = 0;
+        $deliveryCost = 0;
         foreach ($cartItems as $item) {
             $totalPrice += $item->product->price * $item->quantity;
         }
 
         if($request->delivery=="Y"){
-            $totalPrice= Settings::getOrderAmount($totalPrice);
+            $deliveryCost = 2000;
         }
+        $totalPrice+=$deliveryCost;
+        $toPaid= Settings::getOrderAmount($totalPrice);
         // dd('here');
         // Traitement du paiement
-        $paymentResult = $this->paymentService->processPayment((int)$totalPrice, 'XAF', [
+        $paymentResult = $this->paymentService->processPayment((int)$toPaid, 'XAF', [
             'verify' => false, // Disable SSL verification
         ]);
 
@@ -101,14 +113,15 @@ class CartController extends Controller
         }
 
         // Créer la commande et les items associés
-        DB::transaction(function () use ($userId, $request, $cartItems, $totalPrice, $paymentResult) {
+        DB::transaction(function () use ($userId, $request, $cartItems, $totalPrice ,$toPaid , $paymentResult) {
             $order = Order::create([
                 'user_id' => $userId,
                 'total_price' => $totalPrice,
-                'amount_paid' => $totalPrice,
+                'amount_paid' => $toPaid,
                 'status' => 'on_hold',
-                'delivery_cost' => 2000,
+                'delivery_cost' =>$deliveryCost,
                 'delivery_location'=> $request->delivery_location,
+                'city'=> $request->city,
                 'instructions'=> $request->instructions,
                 'transaction_reference' => $paymentResult['transaction_reference'],
             ]);

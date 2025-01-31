@@ -183,8 +183,18 @@ class OrderController extends Controller
         if (!$order) {
             return response()->json(['message' => 'Order not found.'], 404);
         }
+        $toPaid= Settings::getDeliveryAmount($order->total_price);
+        // Traitement du paiement
+        $paymentResult = $this->paymentService->processPayment((int)$toPaid, 'XAF', [
+            'verify' => false, // Disable SSL verification
+        ]);
+
+        if ($paymentResult['status'] !== 'success') {
+            return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
+        }
 
         // Deliver the order
+        $order->amount_paid += $toPaid;
         $order->status = 'booked';
         $order->save();
 
