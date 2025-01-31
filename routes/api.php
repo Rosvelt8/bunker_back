@@ -101,9 +101,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/orders/validate', [OrderController::class, 'validateAssignedOrderItems']);
             Route::get('/orders/history', [OrderController::class, 'historyOrderItemsBySaler']);
 
-
-
+            
+            
         });
+        Route::get('/cities', [CityController::class, 'index']);
 
         Route::middleware(['admin', 'seller'])->group(function () {
             Route::get('/users', [UserController::class, 'index']);
@@ -125,7 +126,6 @@ Route::prefix('v1')->group(function () {
             Route::delete('/countries/{id}', [CountryController::class, 'destroy']);
 
             // ****************CRUD CITY
-            Route::get('/cities', [CityController::class, 'index']);
             Route::post('/cities', [CityController::class, 'store']);
             Route::get('/cities/{id}', [CityController::class, 'show']);
             Route::put('/cities/{id}', [CityController::class, 'update']);
