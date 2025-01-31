@@ -23,11 +23,14 @@ class OrderController extends Controller
 
     public function listPaidOrderItems(Request $request)
     {
-        $user = $request->user();
-        $paidOrders = Order::where('status', 'paid')->get();
-        $custumer= $pai
+
+        $sellerCity = $request->user()->city;
+        $paidOrders = Order::where('status', 'paid')
+                        ->whereHas('user', function ($query) use ($sellerCity) {
+                            $query->where('city', $sellerCity);
+                        })
+                        ->get();
         $orderItems = [];
-        // dd($paidOrders);
 
         foreach ($paidOrders as $order) {
             $items = OrderProducts::where('order_id', $order->idorder)->where('status', 'available')->with('product')->get();
@@ -147,7 +150,14 @@ class OrderController extends Controller
     public function listReadyOrdersForDeliver(Request $request)
     {
         // Get all orders with status 'ready'
-        $readyOrders = Order::with('items.product')->with('user')->where('status', 'ready')->get();
+        $sellerCity = $request->user()->city;
+        $readyOrders = Order::with('items.product')
+                        ->with('user')
+                        ->where('status', 'ready')
+                        ->whereHas('user', function ($query) use ($sellerCity) {
+                            $query->where('city', $sellerCity);
+                        })
+                        ->get();
 
         return response()->json($readyOrders);
     }
