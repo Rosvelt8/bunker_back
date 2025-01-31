@@ -376,14 +376,13 @@ class ProductController extends Controller
     public function promoteProduct(Request $request)
     {
         // Validation des données
-        dd('ok');
-        // $validated = $request->validate([
-        //     'product_id' => 'required|exists:products,id',
-        //     'originalPrice' => 'required|numeric|min:0',
-        //     'discountedPrice' => 'required|numeric|min:0',
-        //     'discount' => 'required|numeric|min:0|max:100',
-        //     'isPromoted' => 'required|boolean',
-        // ]);
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'originalPrice' => 'required|numeric|min:0',
+            'discountedPrice' => 'required|numeric|min:0',
+            'discount' => 'required|numeric|min:0|max:100',
+            'isPromoted' => 'required|boolean',
+        ]);
 
         try {
             // Recherche d'un enregistrement existant
