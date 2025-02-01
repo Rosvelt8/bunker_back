@@ -97,7 +97,7 @@ class CartController extends Controller
             $totalPrice += $item->product->price * $item->quantity;
         }
 
-        if($request->delivery=="Y"){
+        if($request->delivery){
             $deliveryCost = 2000;
         }
         $totalPrice+=$deliveryCost;
@@ -122,6 +122,7 @@ class CartController extends Controller
                 'delivery_cost' =>$deliveryCost,
                 'delivery_location'=> $request->delivery_location,
                 'city'=> $request->city,
+                'delivery'=> $request->delivery,
                 'instructions'=> $request->instructions,
                 'transaction_reference' => $paymentResult['transaction_reference'],
             ]);
