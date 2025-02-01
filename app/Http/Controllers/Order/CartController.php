@@ -78,7 +78,7 @@ class CartController extends Controller
 
         $request->validate([
             'delivery' => 'required|boolean',
-            'city' => 'sometimes|exists:cities,id',
+            'city' => 'nullable|exists:cities,id',
             'delivery_location' => 'required|string',
             'instructions' => 'required|string',
         ]);
