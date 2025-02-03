@@ -12,6 +12,7 @@ use App\Http\Controllers\City\CityController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\SubCategory\SubCategoryController;
 use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\Newsletter\NewsletterController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Settings\SettingController;
 use App\Http\Controllers\Suggestion\SuggestionController;
@@ -45,6 +46,7 @@ Route::prefix('v1')->group(function () {
         ]);
     })->name('password.reset');
     Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail']);
+    Route::post('/newsletter/add-contact', [NewsletterController::class, 'addContact']);
 
 
     // ****************SETTINGS
@@ -130,7 +132,7 @@ Route::prefix('v1')->group(function () {
         // --------------------------------------------------------------------
         // -------> ADMINISTRATION MANAGEMENT
         // --------------------------------------------------------------------
-
+            Route::post('/newsletter/send-emails', [NewsletterController::class, 'sendEmails']);
             // ****************CRUD COUNTRY
             Route::get('/countries', [CountryController::class, 'index']);
             Route::post('/countries', [CountryController::class, 'store']);
