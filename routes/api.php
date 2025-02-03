@@ -15,6 +15,7 @@ use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Settings\SettingController;
 use App\Http\Controllers\Suggestion\SuggestionController;
+use App\Http\Controllers\Analysis\StatisticController;
 
 
 Route::get('images/{filename}', function ($filename) {
@@ -111,6 +112,14 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::middleware(['admin', 'seller'])->group(function () {
+
+            Route::get('/sales/last7days', [StatisticController::class, 'getLast7DaysSales']);
+            Route::get('/sales/today', [StatisticController::class, 'getTodaySalesTotal']);
+            Route::get('/products/top5', [StatisticController::class, 'getTop5Products']);
+            Route::get('/revenue/last12months', [StatisticController::class, 'getLast12MonthsRevenue']);
+            Route::get('/dashboard/metrics', [StatisticController::class, 'getDashboardMetrics']);
+
+
             Route::get('/users', [UserController::class, 'index']);
             Route::get('/getRequests', [UserController::class, 'listRequests']);
             Route::post('/admin/delivery/requests/{user_id}/approveDeliver', [UserController::class, 'approveRequestDeliver']);
