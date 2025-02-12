@@ -20,13 +20,14 @@ class PubliciteController extends Controller
             'description' => 'nullable|string',
             'expires_at' => 'nullable|date|after:today', // Optionnelle mais doit être future
         ]);
-
         // Stocker le fichier et récupérer le chemin
-        $filePath = $request->file('source')->store('publicites');
+        $mainFileName = md5(uniqid(rand(), true)) . '.' . $request->file('source')->getClientOriginalExtension();
+        $request->file('source')->move(public_path('publicite/'), $mainFileName);
+        // dd('here');
 
         $publicite = new Publicite();
         $publicite->type = $request->type;
-        $publicite->source = $filePath;
+        $publicite->source = $mainFileName;
         $publicite->title = $request->title;
         $publicite->description= $request->description;
         $publicite->expires_at = $request->expires_at ? Carbon::parse($request->expires_at) : null;
@@ -46,7 +47,7 @@ class PubliciteController extends Controller
         })->get();
 
         $publicites->map(function ($publicite) {
-            $publicite->source = Storage::url($publicite->source);
+            $publicite->source = url('publicite/',$publicite->source);
             return $publicite;
         });
 
