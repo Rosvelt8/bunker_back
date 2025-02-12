@@ -15,6 +15,7 @@ use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Newsletter\NewsletterController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Settings\SettingController;
+use App\Http\Controllers\Publicites\PubliciteController;
 use App\Http\Controllers\Suggestion\SuggestionController;
 use App\Http\Controllers\Analysis\StatisticController;
 
@@ -67,7 +68,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/sub-category/{id}', [ProductController::class, 'listBySubCategory']);
     Route::get('/products/{product_id}/sellers', [ProductController::class, 'listSellersByProduct']);
     Route::get('/categories/top-selling', [CategoryController::class, 'listTopSellingCategories']);
-    
+
     Route::get('/cities', [CityController::class, 'index']);
 
     Route::middleware('auth:sanctum')->group(function () {
@@ -109,9 +110,13 @@ Route::prefix('v1')->group(function () {
             Route::post('/orders/validate', [OrderController::class, 'validateAssignedOrderItems']);
             Route::get('/orders/history', [OrderController::class, 'historyOrderItemsBySaler']);
 
-            
-            
+
+
         });
+
+        Route::post('/publicites', [PubliciteController::class, 'store']);
+        Route::get('/publicites', [PubliciteController::class, 'index']); // Récupère uniquement les pubs valides
+        Route::delete('/publicites/{id}', [PubliciteController::class, 'destroy']);
 
         Route::middleware(['admin', 'seller'])->group(function () {
 
@@ -167,7 +172,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
             Route::post('/promote', [ProductController::class, 'promoteProduct']);
 
-            
+
 
         });
 
