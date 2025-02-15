@@ -15,7 +15,7 @@ use App\Http\Controllers\PaymentController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return "BUNKER BACKEND HERE";
 });
 
 Route::post('/payment/notify', [App\Http\Controllers\Order\CartController::class, 'handlePaymentNotification'])->name('payment.notify');
