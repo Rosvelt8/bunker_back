@@ -10,10 +10,10 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'price', 'quantity', 'originalPrice', 'discountedPrice', 'discount', 
-        'isPromoted', 'subCategory', 'image', 'images', 'description', 
-        'brand', 'model', 'storage', 'sizes', 'colors', 'material', 
-        'dimensions', 'weight', 'sportType', 'level', 'rate', 
+        'name', 'price', 'quantity', 'originalPrice', 'discountedPrice', 'discount',
+        'isPromoted', 'subCategory', 'image', 'images', 'description',
+        'brand', 'model', 'storage', 'sizes', 'colors', 'material',
+        'dimensions', 'weight', 'sportType', 'level', 'rate',
         'isNew', 'salesCount', 'inStock', 'arrivalDate', 'created_by'
     ];
 
@@ -47,6 +47,11 @@ class Product extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function cities()
+    {
+        return $this->hasManyThrough(City::class, User::class, 'id', 'id', 'id', 'city_id');
     }
 
     /**

@@ -17,7 +17,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['subCategory'])->get();
+        $products = Product::with(['subCategory'])->with(['cities'])->get();
         return response()->json($products);
     }
 
@@ -134,7 +134,7 @@ class ProductController extends Controller
     {
         $product = Product::with(['subcategory'])->find($id);
         if($product){
-            
+
             $product->total_quantity = $product->total_quantity; // Ensure total_quantity is calculated
             return response()->json($product);
         }
