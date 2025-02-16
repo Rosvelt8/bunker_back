@@ -18,7 +18,7 @@ use App\Http\Controllers\Settings\SettingController;
 use App\Http\Controllers\Publicites\PubliciteController;
 use App\Http\Controllers\Suggestion\SuggestionController;
 use App\Http\Controllers\Analysis\StatisticController;
-
+use App\Http\Controllers\Notifications\NotificationController;
 
 Route::get('images/{filename}', function ($filename) {
     $path = public_path('images/' . $filename);
@@ -74,6 +74,12 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
+        Route::get('/notifications/last-five', [NotificationController::class, 'getLastFiveNotifications']);
+        Route::get('/notifications/all', [NotificationController::class, 'getAllNotifications']);
+        Route::get('/notifications/read/{id}', function ($id) {
+            markNotificationAsRead($id);
+            return response()->json(['success' => 'Notification marquée comme lue']);
+        });
 
         Route::post('/addTocart', [CartController::class, 'addToCart']);
         Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);

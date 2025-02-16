@@ -36,6 +36,7 @@ class SuggestionController extends Controller
      */
     public function listSuggestions()
     {
+        
         $suggestions = Suggestion::with(['order', 'user'])->get();
 
         $suggestions = $suggestions->map(function ($suggestion) {
