@@ -15,6 +15,7 @@ class NotificationController extends Controller
     {
         $notifications = Notification::where('user_id', Auth::user()->id)
             ->orderBy('created_at', 'desc')
+            ->where('is_read',0)
             ->limit(5)
             ->get();
 
