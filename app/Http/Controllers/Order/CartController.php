@@ -82,7 +82,7 @@ class CartController extends Controller
             'delivery_location' => 'nullable|string',
             'instructions' => 'nullable|string',
         ]);
-        
+
         $userId = $request->user()->id;
         $cartItems = CartItem::where('user_id', $userId)->get();
 

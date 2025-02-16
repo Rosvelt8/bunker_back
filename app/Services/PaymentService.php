@@ -23,15 +23,13 @@ class PaymentService
     {
         $transactionId = uniqid('txn_');
         // dd($this->apiKey, $this->siteId);
-        $response = $this->client->post('https://api-checkout.cinetpay.com/v2/payment', array_merge([
+        $response = $this->client->post('https://api.monetbil.com/widget/v2.1/FKRZBK0tX0gzRif7Ut8h6XB4tohQccgS', array_merge([
             'json' => [
-                'apikey' => "4659668566c4d543a545d1.86010226",
-                'site_id' => "5879943",
-                'transaction_id' => $transactionId,
+                'payment_ref' => $transactionId,
                 'amount' => $amount,
                 'currency' => $currency,
-                'description' => $description,
-                "channels"=>"ALL",
+                'country' =>"CM",
+                'locale'=> 'fr',
                 'return_url' => "https://bunker-shop.store/home",
                 'notify_url' => route('payment.notify'),
             ]
@@ -39,13 +37,11 @@ class PaymentService
 
         $responseBody = json_decode($response->getBody(), true);
         // dd($responseBody);
-        if ($responseBody['code'] == '201') {
+        if ($responseBody['success'] == true) {
             return [
                 'status' => 'success',
                 'transaction_reference' =>$transactionId,
-                "payment_token" => $responseBody['data']['payment_token'],
-                "payment_url" => $responseBody['data']['payment_url'],
-                'message' => $responseBody['description'],
+                "payment_url" => $responseBody['payment_url'],
             ];
         }
 
