@@ -70,6 +70,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/categories/top-selling', [CategoryController::class, 'listTopSellingCategories']);
 
     Route::get('/cities', [CityController::class, 'index']);
+    Route::get('/publicites', [PubliciteController::class, 'index']); // Récupère uniquement les pubs valides
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -121,7 +122,6 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::post('/publicites', [PubliciteController::class, 'store']);
-        Route::get('/publicites', [PubliciteController::class, 'index']); // Récupère uniquement les pubs valides
         Route::delete('/publicites/{id}', [PubliciteController::class, 'destroy']);
 
         Route::middleware(['admin', 'seller'])->group(function () {
