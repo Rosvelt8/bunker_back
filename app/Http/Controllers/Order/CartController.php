@@ -170,15 +170,17 @@ class CartController extends Controller
 
     public function handlePaymentNotification(Request $request)
     {
-        $transactionId = $request->input('cpm_trans_id');
-        $siteId = $request->input('cpm_site_id');
+        $transactionId = $request->input('payment_ref');
+        $amount = $request->input('amount');
+        $status = $request->input('status');
+        $payment_id = $request->input('paymentId');
         // dd($request->input());
         // Verify the transaction status with CinetPay
-        $verificationResult = $this->paymentService->verifyTransaction($transactionId, $siteId, [
-            'verify' => false, // Disable SSL verification
-        ]);
+        // $verificationResult = $this->paymentService->verifyTransaction($payment_id, [
+        //     'verify' => false, // Disable SSL verification
+        // ]);
 
-        if ($verificationResult['status'] === 'success') {
+        if ($status === 'success') {
             // Update the payment status in the database
             $payment = Payment::where('transaction_id', $transactionId)->first();
             if ($payment && $payment->status !== 'completed') {

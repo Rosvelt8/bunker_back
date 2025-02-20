@@ -13,11 +13,11 @@ class SendNewsletterEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $email;
-    protected $subject;
-    protected $message;
+    protected string $email;
+    protected string $subject;
+    protected string $message;
 
-    public function __construct($email, $subject, $message)
+    public function __construct(string $email, string $subject, string $message)
     {
         $this->email = $email;
         $this->subject = $subject;
@@ -26,9 +26,13 @@ class SendNewsletterEmail implements ShouldQueue
 
     public function handle()
     {
-        Mail::raw($this->message, function ($mail) {
+        Mail::send('emails.newsletter', ['messageContent' => $this->message], function ($mail) {
             $mail->to($this->email)
-                 ->subject($this->subject);
+                 ->subject($this->subject)
+                 ->attach(public_path('images/logo.png'), [
+                    'as' => 'logo.png',
+                    'mime' => 'image/png',
+                ]);
         });
     }
 }
