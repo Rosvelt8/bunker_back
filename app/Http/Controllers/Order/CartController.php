@@ -98,7 +98,7 @@ class CartController extends Controller
         }
 
         if($request->delivery){
-            $deliveryCost = 2000;
+            $deliveryCost = 0;
         }
         $totalPrice+=$deliveryCost;
         $toPaid= Settings::getOrderAmount($totalPrice);
