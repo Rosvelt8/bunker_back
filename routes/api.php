@@ -40,12 +40,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 
-    Route::get('/password/reset/{token}', function ($token) {
-        return response()->json([
-            'message' => 'Password reset URL',
-            'token' => $token,
-        ]);
-    })->name('password.reset');
+    Route::post('/password/reset',[AuthController::class, 'resetPassword']);
     Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail']);
     Route::post('/newsletter/add-contact', [NewsletterController::class, 'addContact']);
 
