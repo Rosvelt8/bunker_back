@@ -132,7 +132,7 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with(['subcategory'])->find($id);
+        $product = Product::with(['subcategory'])->with(['cities'])->find($id);
         if($product){
 
             $product->total_quantity = $product->total_quantity; // Ensure total_quantity is calculated
