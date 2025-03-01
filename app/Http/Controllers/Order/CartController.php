@@ -235,25 +235,25 @@ class CartController extends Controller
         ]);
 
         $order = Order::find($request->order_id);
-        $order->status = 'on_hold';
-        $order->save();
         addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." est en attente du premier paiement");
-
-
+        
+        
         if ($order->status !== 'unpaid') {
             return response()->json(['message' => 'Order is not unpaid'], 400);
         }
-
+        
         $payment = Payment::where('order_id', $order->idorder)->first();
-
+        
         $paymentResult = $this->paymentService->processPayment($payment->amount, "Paiement de la commande", 'XAF', [
             'verify' => false, // Disable SSL verification
         ]);
-
+        
         if ($paymentResult['status'] !== 'success') {
             return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
         }
-
+        $order->status = 'on_hold';
+        $order->save();
+        
         $payment->transaction_id = $paymentResult['transaction_reference'];
         $payment->save();
 
