@@ -142,7 +142,7 @@ class CartController extends Controller
             // Enregistrer la transaction dans la table payment
             Payment::create([
                 'order_id' => $order->idorder,
-                'amount' => $totalPrice,
+                'amount' => $toPaid,
                 'payment_method' => 'cinetpay',
                 'status' => 'pending',
                 'transaction_id' => $paymentResult['transaction_reference'],

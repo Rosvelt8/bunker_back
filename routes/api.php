@@ -19,6 +19,7 @@ use App\Http\Controllers\Publicites\PubliciteController;
 use App\Http\Controllers\Suggestion\SuggestionController;
 use App\Http\Controllers\Analysis\StatisticController;
 use App\Http\Controllers\Notifications\NotificationController;
+use App\Http\Controllers\Search\SearchController;
 
 Route::get('images/{filename}', function ($filename) {
     $path = public_path('images/' . $filename);
@@ -43,6 +44,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/password/reset',[AuthController::class, 'resetPassword']);
     Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail']);
     Route::post('/newsletter/add-contact', [NewsletterController::class, 'addContact']);
+    Route::post('/search/add-search', [SearchController::class, 'addSearch']);
 
 
     // ****************SETTINGS
