@@ -82,7 +82,7 @@ class OrderController extends Controller
         $orderProduct = OrderProducts::find($request->orderProductId);
         $order= Order::find($orderProduct->order_id);
         // Check if the saler code is valid  and if the user is admin
-        if ($request->user()->status == 'seller') {
+        if ($request->user()->status == 'admin') {
             $orderProduct->status = 'ready';
             $orderProduct->save();
 
