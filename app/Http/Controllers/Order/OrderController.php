@@ -61,6 +61,8 @@ class OrderController extends Controller
             $orderProduct->saler_id = $request->user()->id;
             $orderProduct->save();
 
+            addNotification($request->user()->id, "Vous avez une commande à traiter");
+
             return response()->json(['message' => 'Order product status updated and saler assigned successfully.']);
         }
 
@@ -77,24 +79,33 @@ class OrderController extends Controller
 
     public function validateAssignedOrderItems(Request $request)
     {
-        $orderProduct = OrderProducts::find($request->orderProductId);
-        $order= Order::find($orderProduct->order_id);
-        if ($orderProduct->status=='pending') {
-            // Check if the saler code is valid  and if the user is admin
-            if ($request->user()->role == 'admin' || $request->user()->role == 'superadmin') {
+        
+        // Check if the saler code is valid  and if the user is admin
+        if ($request->user()->role == 'admin' || $request->user()->role == 'superadmin') {
+            $orderProduct = OrderProducts::where('product_id',$request->orderProductId)->where('order_id', $request->order_id)->first();
+            $order= Order::find($orderProduct->order_id);
+            if ($orderProduct->status=='pending') {
+
                 $orderProduct->status = 'ready';
                 $orderProduct->save();
 
                 $order->updateStatusIfAllItemsReady();
+                addNotification($request->user()->id, "Nouvelle commande prête à être déposée");
+
 
                 return response()->json(['message' => 'Order product status updated successfully.']);
-            }else{
+            }
+        }else{
+            $orderProduct = OrderProducts::find($request->orderProductId);
+            $order= Order::find($orderProduct->order_id);
+            if ($orderProduct->status=='pending') {
 
-                if($order->saler_code===$request->saler_code ){
+                if($order->saler_code===$request->saler_code && $request->user()->role == 'saler' ){
                     $orderProduct->status = 'ready';
                     $orderProduct->save();
 
                     $order->updateStatusIfAllItemsReady();
+                    addNotification($request->user()->id, "Dépôt effectué avec succès");
 
                     return response()->json(['message' => 'Order product status updated successfully.']);
                 }else{
@@ -145,6 +156,8 @@ class OrderController extends Controller
         // Cancel the order
         $order->status = 'cancelled';
         $order->save();
+        addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." a été annulée");
+
 
         return response()->json(['message' => 'Order cancelled successfully.']);
     }
@@ -192,6 +205,8 @@ class OrderController extends Controller
         $order->deliver_id= $request->user()->id;
         $order->save();
 
+        addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." est en cours de livraison");
+
         return response()->json(['message' => 'Order delivered successfully.']);
     }
 
@@ -225,6 +240,7 @@ class OrderController extends Controller
             if ($paymentResult['status'] !== 'success') {
                 return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
             }
+            addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." est en attente du dernier paiement");
 
         DB::transaction(function () use ($order, $toPaid , $paymentResult) {
             // Deliver the order
@@ -265,6 +281,7 @@ class OrderController extends Controller
         }
         $allowedStatus = ['on_hold','paid', 'in_progress', 'ready','in_delivery', 'booked', 'cancelled'];
         // verify if the status is allowed
+        addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." a changé de statut");
 
         if (!in_array($request->status, $allowedStatus)) {
             return response()->json(['message' => 'Status not allowed.'], 400);

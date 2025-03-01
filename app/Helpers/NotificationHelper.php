@@ -4,11 +4,11 @@ use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 
 if (!function_exists('addNotification')) {
-    function addNotification($message)
+    function addNotification($userId,$message)
     {
         if (Auth::check()) {
             Notification::create([
-                'user_id' => Auth::user()->id,
+                'user_id' =>$userId,
                 'message' => $message,
                 'is_read' => false,
             ]);

@@ -127,6 +127,8 @@ class CartController extends Controller
                 'transaction_reference' => $paymentResult['transaction_reference'],
             ]);
 
+            addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." est en attente du premier paiement");
+
             foreach ($cartItems as $item) {
                 OrderProducts::create([
                     'order_id' => $order->idorder,
@@ -192,9 +194,12 @@ class CartController extends Controller
                 if ($order) {
                     if($order->status == 'on_hold'){
                         $order->status = 'paid';
+                        addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." a été payée en partie avec succès");
                     }
                     if($order->status == 'in_delivery'){
                         $order->status = 'booked';
+                        addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." a été payée en totalité avec succès");
+                    
                     }
                     $order->amount_paid+=$payment->amount;
                     $order->save();
@@ -212,6 +217,7 @@ class CartController extends Controller
                 if ($order) {
                      if($order->status == 'on_hold'){
                         $order->status = 'unpaid';
+                        addNotification($order->user_id, "Le paiement de votre commande ". $order->getOrderNumberAttribute() ." a échoué");
                     }
                     $order->save();
                 }
@@ -219,5 +225,38 @@ class CartController extends Controller
         }
 
         return response()->json(['message' => 'Notification received'], 200);
+    }
+
+    // refaire le paiement pour une commande non payée
+    public function retryPayment(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,idorder',
+        ]);
+
+        $order = Order::find($request->order_id);
+
+        if ($order->status !== 'unpaid') {
+            return response()->json(['message' => 'Order is not unpaid'], 400);
+        }
+
+        $payment = Payment::where('order_id', $order->idorder)->first();
+
+        $paymentResult = $this->paymentService->processPayment($payment->amount, "Paiement de la commande", 'XAF', [
+            'verify' => false, // Disable SSL verification
+        ]);
+
+        if ($paymentResult['status'] !== 'success') {
+            return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
+        }
+
+        $payment->transaction_id = $paymentResult['transaction_reference'];
+        $payment->save();
+
+        return response()->json([
+            'message' => 'Payment retried successfully',
+            'transaction_reference' => $paymentResult['transaction_reference'],
+            'payment_url' => $paymentResult['payment_url'],
+        ]);
     }
 }

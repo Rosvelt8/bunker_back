@@ -18,7 +18,8 @@ class Order extends Model
     // Accessor for order number
     public function getOrderNumberAttribute()
     {
-        return 'ORD-' . $this->idorder . '-' . $this->created_at->format('Ymd');
+        $paddedId = str_pad($this->idorder, 4, '0', STR_PAD_LEFT);
+        return 'BUNK'. $paddedId;
     }
 
     public static function boot()
@@ -59,7 +60,8 @@ class Order extends Model
     {
         $array = parent::toArray();
         $paddedId = str_pad($this->idorder, 5, '0', STR_PAD_LEFT);
-        $array['orderNumber'] = 'BUNK' .$this->created_at->format('Ymd'). $paddedId;
+        // $array['orderNumber'] = 'BUNK' .$this->created_at->format('Ymd'). $paddedId;
+        $array['orderNumber'] = 'BUNK' . $paddedId;
         return $array;
     }
 
@@ -73,6 +75,8 @@ class Order extends Model
         if ($allItemsReady) {
             $this->status = 'ready';
             $this->save();
+            addNotification($this->user_id, "Une de vos commandes à changé de statut");
+
         }
     }
 }

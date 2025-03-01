@@ -80,6 +80,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/addTocart', [CartController::class, 'addToCart']);
         Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
         Route::post('/checkout', [CartController::class, 'checkout']);
+        Route::post('/retry_payment', [CartController::class, 'retryPayment']);
         // --------------------------------------------------------------------
         // -------> USER MANAGEMENT
         // --------------------------------------------------------------------
