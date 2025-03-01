@@ -81,10 +81,9 @@ class OrderController extends Controller
     {
         
         // Check if the saler code is valid  and if the user is admin
-        if ($request->user()->role == 'admin' || $request->user()->role == 'superadmin') {
+        if ($request->user()->role == 'admin') {
             $orderProduct = OrderProducts::where('product_id',$request->orderProductId)->where('order_id', $request->order_id)->first();
             $order= Order::find($orderProduct->order_id);
-            if ($orderProduct->status=='pending') {
 
                 $orderProduct->status = 'ready';
                 $orderProduct->save();
@@ -94,7 +93,6 @@ class OrderController extends Controller
 
 
                 return response()->json(['message' => 'Order product status updated successfully.']);
-            }
         }else{
             $orderProduct = OrderProducts::find($request->orderProductId);
             $order= Order::find($orderProduct->order_id);
