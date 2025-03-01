@@ -80,15 +80,26 @@ class OrderController extends Controller
         $orderProduct = OrderProducts::find($request->orderProductId);
         $order= Order::find($orderProduct->order_id);
         if ($orderProduct->status=='pending') {
-            if($order->saler_code===$request->saler_code){
+            // Check if the saler code is valid  and if the user is admin
+            if ($request->user()->role == 'admin' || $request->user()->role == 'superadmin') {
                 $orderProduct->status = 'ready';
                 $orderProduct->save();
-                
+
                 $order->updateStatusIfAllItemsReady();
-                
+
                 return response()->json(['message' => 'Order product status updated successfully.']);
             }else{
-                return response()->json(['message' => 'Saler code not valid.'], 400);
+
+                if($order->saler_code===$request->saler_code ){
+                    $orderProduct->status = 'ready';
+                    $orderProduct->save();
+
+                    $order->updateStatusIfAllItemsReady();
+
+                    return response()->json(['message' => 'Order product status updated successfully.']);
+                }else{
+                    return response()->json(['message' => 'Saler code not valid.'], 400);
+                }
             }
 
         }
@@ -160,6 +171,8 @@ class OrderController extends Controller
                         ->whereHas('user', function ($query) use ($sellerCity) {
                             $query->where('city', $sellerCity);
                         })
+                        // si la livraison est true
+                        ->where('delivery', true)
                         ->get();
 
         return response()->json($readyOrders);
@@ -192,7 +205,7 @@ class OrderController extends Controller
 
     public function deliverOrder(Request $request)
     {
-        
+
         // Find the order
         $order = Order::find($request->order);
 
@@ -203,28 +216,28 @@ class OrderController extends Controller
         if($order->user_id != $userId){
             return response()->json(['message' => 'You are not the customer of this order.'], 403);
         }
-        $toPaid= Settings::getDeliveryAmount($order->total_price);
+        $toPaid= Settings::getDeliveryAmount($order->total_price)+$order->delivery_cost;
         // Traitement du paiement
             $paymentResult = $this->paymentService->processPayment((int)$toPaid, "paiement à la livraison", 'XAF', [
                 'verify' => false, // Disable SSL verification
             ]);
-            
+
             if ($paymentResult['status'] !== 'success') {
                 return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
             }
-            
-        DB::transaction(function () use ($order, $request, $toPaid , $paymentResult) {
+
+        DB::transaction(function () use ($order, $toPaid , $paymentResult) {
             // Deliver the order
             $order->save();
 
             Payment::create([
                 'order_id' => $order->idorder,
                 'amount' => $toPaid,
-                'payment_method' => 'cinetpay',
+                'payment_method' => 'monetbil',
                 'status' => 'pending',
                 'transaction_id' => $paymentResult['transaction_reference'],
             ]);
-        
+
         });
 
         return response()->json([
@@ -241,6 +254,47 @@ class OrderController extends Controller
 
         return response()->json($deliveredOrders);
     }
+
+    public function updateOrderStatus(Request $request, $orderId)
+    {
+        // Find the order
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found.'], 404);
+        }
+        $allowedStatus = ['on_hold','paid', 'in_progress', 'ready','in_delivery', 'booked', 'cancelled'];
+        // verify if the status is allowed
+
+        if (!in_array($request->status, $allowedStatus)) {
+            return response()->json(['message' => 'Status not allowed.'], 400);
+        }
+
+        $order->status = $request->status;
+        $order->save();
+
+        return response()->json(['message' => 'Order status updated successfully.']);
+    }
+
+    // update order delivery cost by admin only and delivery location
+    public function updateOrderDeliveryInfos(Request $request, $orderId)
+    {
+        // Find the order
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            return response()->json(['message' => 'Order not found.'], 404);
+        }
+
+        $order->delivery = true;
+        $order->delivery_cost = $request->delivery_cost;
+        $order->delivery_location = $request->delivery_location;
+        $order->save();
+
+        return response()->json(['message' => 'Order delivery cost updated successfully.']);
+    }
+
+
 
 
 

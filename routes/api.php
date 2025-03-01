@@ -179,6 +179,8 @@ Route::prefix('v1')->group(function () {
 
 
         Route::get('/orders/deliver_ready', [OrderController::class, 'listReadyOrdersForDeliver']);
+        Route::put('/orders/update_order_status/{orderId}', [OrderController::class, 'updateOrderStatus']);
+        Route::put('/orders/update_order_delivery_infos/{orderId}', [OrderController::class, 'updateOrderDeliveryInfos']);
         Route::post('/orders/{orderId}/deliver_assign', [OrderController::class, 'assignOrderToDeliver']);
         Route::get('/orders/in-delivery', [OrderController::class, 'listInDeliveringOrders']);
         Route::post('/orders/deliver', [OrderController::class, 'deliverOrder']);
