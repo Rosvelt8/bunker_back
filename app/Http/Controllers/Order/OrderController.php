@@ -79,26 +79,22 @@ class OrderController extends Controller
 
     public function validateAssignedOrderItems(Request $request)
     {
-        
+        $orderProduct = OrderProducts::find($request->orderProductId);
+        $order= Order::find($orderProduct->order_id);
         // Check if the saler code is valid  and if the user is admin
-        if ($request->user()->role == 'admin') {
-            $orderProduct = OrderProducts::where('product_id',$request->orderProductId)->where('order_id', $request->order_id)->first();
-            $order= Order::find($orderProduct->order_id);
-
-                $orderProduct->status = 'ready';
-                $orderProduct->save();
+        if ($request->user()->status == 'seller') {
+            $orderProduct->status = 'ready';
+            $orderProduct->save();
 
                 $order->updateStatusIfAllItemsReady();
                 addNotification($request->user()->id, "Nouvelle commande prête à être déposée");
 
 
                 return response()->json(['message' => 'Order product status updated successfully.']);
-        }else{
-            $orderProduct = OrderProducts::find($request->orderProductId);
-            $order= Order::find($orderProduct->order_id);
-            if ($orderProduct->status=='pending') {
+            }else{
+                if ($orderProduct->status=='pending') {
 
-                if($order->saler_code===$request->saler_code && $request->user()->role == 'saler' ){
+                if($order->saler_code===$request->saler_code ){
                     $orderProduct->status = 'ready';
                     $orderProduct->save();
 
