@@ -235,6 +235,10 @@ class CartController extends Controller
         ]);
 
         $order = Order::find($request->order_id);
+        $order->status = 'on_hold';
+        $order->save();
+        addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." est en attente du premier paiement");
+
 
         if ($order->status !== 'unpaid') {
             return response()->json(['message' => 'Order is not unpaid'], 400);
