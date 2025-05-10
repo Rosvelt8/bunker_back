@@ -5,11 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Payment extends Model
+class Newsletter extends Model
 {
     use HasFactory;
-    protected $primaryKey = 'idpayment';
-
-    protected $fillable = ['order_id', 'amount', 'transaction_id'];
-
+    protected $table = 'newsletter';
 }

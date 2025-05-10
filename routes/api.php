@@ -6,11 +6,18 @@ use Illuminate\Support\Facades\Response;
 
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Country\CountryController;
+use App\Http\Controllers\Order\CartController;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\City\CityController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\SubCategory\SubCategoryController;
 use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\Newsletter\NewsletterController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Settings\SettingController;
+use App\Http\Controllers\Publicites\PubliciteController;
+use App\Http\Controllers\Suggestion\SuggestionController;
+use App\Http\Controllers\Analysis\StatisticController;
 
 
 Route::get('images/{filename}', function ($filename) {
@@ -40,10 +47,37 @@ Route::prefix('v1')->group(function () {
         ]);
     })->name('password.reset');
     Route::post('/password/forgot', [AuthController::class, 'sendResetLinkEmail']);
+    Route::post('/newsletter/add-contact', [NewsletterController::class, 'addContact']);
+
+
+    // ****************SETTINGS
+    Route::get('/settings', [SettingController::class, 'getSettings']);
+    Route::post('/settings', [SettingController::class, 'updateSettings']);
+
+    Route::post('/orders/{orderId}/cancel', [OrderController::class, 'cancelOrder']);
+    Route::get('/orders', [OrderController::class, 'listAllOrders']);
+
+
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/products/top3-selling', [ProductController::class, 'listTop3SellingProducts']);
+    Route::get('/products/top-selling', [ProductController::class, 'listTopSellingProducts']);
+    Route::get('/products/promoted', [ProductController::class, 'listPromotedProducts']);
+    Route::get('/products/new', [ProductController::class, 'listNewProducts']);
+    Route::get('/products/details/{id}', [ProductController::class, 'show']);
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/sub-category/{id}', [ProductController::class, 'listBySubCategory']);
+    Route::get('/products/{product_id}/sellers', [ProductController::class, 'listSellersByProduct']);
+    Route::get('/categories/top-selling', [CategoryController::class, 'listTopSellingCategories']);
+
+    Route::get('/cities', [CityController::class, 'index']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
+
+        Route::post('/addTocart', [CartController::class, 'addToCart']);
+        Route::delete('/removeFromCart', [CartController::class, 'removeFromCart']);
+        Route::post('/checkout', [CartController::class, 'checkout']);
         // --------------------------------------------------------------------
         // -------> USER MANAGEMENT
         // --------------------------------------------------------------------
@@ -55,13 +89,44 @@ Route::prefix('v1')->group(function () {
         Route::post('/beDeliver', [UserController::class, 'BecomeDeliver']);
         Route::post('/beSaler', [UserController::class, 'BecomeSaler']);
 
+        Route::get('/user/orders', [OrderController::class, 'listUserOrders']);
 
-       
+        Route::post('/suggestions', [SuggestionController::class, 'createSuggestion']);
+        Route::get('/suggestions', [SuggestionController::class, 'listSuggestions']);
+
         Route::middleware('seller')->group(function () {
 
+            // *********** PRODUCT MANAGEMENT********************
+
+            Route::post('/saler/upsert', [ProductController::class, 'upsert']);
+            Route::delete('/salerproduct/delete/{id}', [ProductController::class, 'deleteSalerProduct']);
+            Route::get('/salerproduct/getOne', [ProductController::class, 'getOneSalerProduct']);
+            Route::get('/salerproduct/{saler_id}/listBySaler', [ProductController::class, 'listBySaler']);
+
+            // ************ ORDER MANAGEMENT *********************
+            Route::get('/orders/available', [OrderController::class, 'listPaidOrderItems']);
+            Route::post('/orders/subscribe', [OrderController::class, 'assignSalerToOrderProduct']);
+            Route::get('/orders/subscribed', [OrderController::class, 'listAssignedOrderItems']);
+            Route::post('/orders/validate', [OrderController::class, 'validateAssignedOrderItems']);
+            Route::get('/orders/history', [OrderController::class, 'historyOrderItemsBySaler']);
+
+
+
         });
-        
+
+        Route::post('/publicites', [PubliciteController::class, 'store']);
+        Route::get('/publicites', [PubliciteController::class, 'index']); // Récupère uniquement les pubs valides
+        Route::delete('/publicites/{id}', [PubliciteController::class, 'destroy']);
+
         Route::middleware(['admin', 'seller'])->group(function () {
+
+            Route::get('/sales/last7days', [StatisticController::class, 'getLast7DaysSales']);
+            Route::get('/sales/today', [StatisticController::class, 'getTodaySalesTotal']);
+            Route::get('/products/top5', [StatisticController::class, 'getTop5Products']);
+            Route::get('/revenue/last12months', [StatisticController::class, 'getLast12MonthsRevenue']);
+            Route::get('/dashboard/metrics', [StatisticController::class, 'getDashboardMetrics']);
+
+
             Route::get('/users', [UserController::class, 'index']);
             Route::get('/getRequests', [UserController::class, 'listRequests']);
             Route::post('/admin/delivery/requests/{user_id}/approveDeliver', [UserController::class, 'approveRequestDeliver']);
@@ -72,7 +137,7 @@ Route::prefix('v1')->group(function () {
         // --------------------------------------------------------------------
         // -------> ADMINISTRATION MANAGEMENT
         // --------------------------------------------------------------------
-
+            Route::post('/newsletter/send-emails', [NewsletterController::class, 'sendEmails']);
             // ****************CRUD COUNTRY
             Route::get('/countries', [CountryController::class, 'index']);
             Route::post('/countries', [CountryController::class, 'store']);
@@ -81,14 +146,12 @@ Route::prefix('v1')->group(function () {
             Route::delete('/countries/{id}', [CountryController::class, 'destroy']);
 
             // ****************CRUD CITY
-            Route::get('/cities', [CityController::class, 'index']);
             Route::post('/cities', [CityController::class, 'store']);
             Route::get('/cities/{id}', [CityController::class, 'show']);
             Route::put('/cities/{id}', [CityController::class, 'update']);
             Route::delete('/cities/{id}', [CityController::class, 'destroy']);
 
             // ****************CRUD CATEGORY
-            Route::get('/categories', [CategoryController::class, 'index']);
             Route::post('/categories', [CategoryController::class, 'store']);
             Route::get('/categories/{id}', [CategoryController::class, 'show']);
             Route::post('/categories/{id}', [CategoryController::class, 'update']);
@@ -102,21 +165,26 @@ Route::prefix('v1')->group(function () {
             Route::delete('/sub-categories/{id}', [SubCategoryController::class, 'destroy']);
 
             // ****************CRUD PRODUCT
-            Route::get('/products', [ProductController::class, 'index']);
             Route::post('/products', [ProductController::class, 'store']);
             Route::get('/products/{id}', [ProductController::class, 'show']);
             Route::post('/products/{id}', [ProductController::class, 'update']);
             Route::put('/products/{id}', [ProductController::class, 'updateInStock']);
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+            Route::post('/promote', [ProductController::class, 'promoteProduct']);
+
 
 
         });
 
-        // --------------------------------------------------------------------
-        // -------> SALERS MANAGEMENT
-        // --------------------------------------------------------------------
 
-        
+        Route::get('/orders/deliver_ready', [OrderController::class, 'listReadyOrdersForDeliver']);
+        Route::post('/orders/{orderId}/deliver_assign', [OrderController::class, 'assignOrderToDeliver']);
+        Route::get('/orders/in-delivery', [OrderController::class, 'listInDeliveringOrders']);
+        Route::post('/orders/deliver', [OrderController::class, 'deliverOrder']);
+        Route::get('/orders/deliver_history', [OrderController::class, 'deliverHistory']);
+
+
+
     });
 });
 

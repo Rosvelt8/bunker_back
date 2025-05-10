@@ -38,7 +38,7 @@ class Product extends Model
      */
     public function subCategory()
     {
-        return $this->belongsTo(Subcategory::class, 'subCategory');
+        return $this->belongsTo(SubCategory::class, 'subCategory');
     }
 
     /**
@@ -47,5 +47,13 @@ class Product extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Accessor for total quantity
+     */
+    public function getTotalQuantityAttribute()
+    {
+        return $this->hasMany(SalerProduct::class, 'product_id')->sum('quantity');
     }
 }
