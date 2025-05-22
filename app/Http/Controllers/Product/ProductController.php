@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\SalerProduct;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
@@ -24,7 +25,7 @@ class ProductController extends Controller
     /**
      * Créer un nouveau produit
      */
-    public function store(Request $request)
+    public function old_store(Request $request)
     {
 
         $request->validate([
@@ -142,6 +143,89 @@ class ProductController extends Controller
             'message' => 'Product not found',
         ], 404);
     }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => [
+                'required', 'string', 'max:255',
+                Rule::unique('products', 'name')
+            ],
+            'price' => 'required|numeric|min:0|max:1000000',
+            'quantity' => 'required|numeric|min:1|max:1000000',
+
+            // Image
+            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'images.*' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+
+            // Catégories
+            'subCategories' => 'required|array|min:1',
+            'subCategories.*' => 'exists:sub_categories,id',
+
+            // Unités
+            'units' => 'required|array|min:1',
+            'units.*.id' => 'required|exists:units,id',
+            'units.*.value' => 'required|numeric|min:0',
+
+            // Autres champs
+            'created_by' => 'required|exists:users,id'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // 1. Image principale
+            $mainImageUrl = null;
+            if ($request->hasFile('image')) {
+                $mainFileName = md5(uniqid(rand(), true)) . '.' . $request->file('image')->getClientOriginalExtension();
+                $request->file('image')->move(public_path('images'), $mainFileName);
+                $mainImageUrl = url('images/' . $mainFileName);
+            }
+
+            // 2. Images secondaires
+            $additionalImagesUrls = [];
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    $fileName = md5(uniqid(rand(), true)) . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('images'), $fileName);
+                    $additionalImagesUrls[] = url('images/' . $fileName);
+                }
+            }
+
+            // 3. Création du produit
+            $productData = $request->except(['image', 'images', 'subCategories', 'units']);
+            $productData['image'] = $mainImageUrl;
+            $productData['images'] = count($additionalImagesUrls) > 0 ? json_encode($additionalImagesUrls) : null;
+            $product = Product::create($productData);
+
+            // 4. Sous-catégories
+            $product->subCategories()->attach($request->subCategories);
+            foreach ($request->subCategories as $subCatId) {
+                SubCategory::where('id', $subCatId)->increment('countProduct');
+            }
+
+            // 5. Unités avec valeur
+            $unitValues = [];
+            foreach ($request->units as $unit) {
+                $unitValues[$unit['id']] = ['value' => $unit['value']];
+            }
+            $product->units()->attach($unitValues);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Produit créé avec succès',
+                'product' => $product->load(['subCategories', 'units'])
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Erreur lors de la création du produit',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     /**
      * Mettre à jour un produit
