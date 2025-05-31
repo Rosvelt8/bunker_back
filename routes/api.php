@@ -20,6 +20,8 @@ use App\Http\Controllers\Suggestion\SuggestionController;
 use App\Http\Controllers\Analysis\StatisticController;
 use App\Http\Controllers\Notifications\NotificationController;
 use App\Http\Controllers\Search\SearchController;
+use App\Http\Controllers\Unit\UnitController;
+use App\Http\Controllers\Unit\UnitTypeController;
 
 Route::get('images/{filename}', function ($filename) {
     $path = public_path('images/' . $filename);
@@ -177,6 +179,19 @@ Route::prefix('v1')->group(function () {
             Route::post('/promote', [ProductController::class, 'promoteProduct']);
 
 
+            // ****************CRUD UNIT TYPES
+            Route::get('/unit-types', [UnitTypeController::class, 'index']);
+            Route::post('/unit-types', [UnitTypeController::class, 'store']);
+            Route::get('/unit-types/{id}', [UnitTypeController::class, 'show']);
+            Route::put('/unit-types/{id}', [UnitTypeController::class, 'update']);
+            Route::delete('/unit-types/{id}', [UnitTypeController::class, 'destroy']);
+
+            // ****************CRUD UNITS
+            Route::get('/units', [UnitController::class, 'index']);
+            Route::post('/units', [UnitController::class, 'store']);
+            Route::get('/units/{id}', [UnitController::class, 'show']);
+            Route::put('/units/{id}', [UnitController::class, 'update']);
+            Route::delete('/units/{id}', [UnitController::class, 'destroy']);
 
         });
 

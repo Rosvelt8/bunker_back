@@ -164,12 +164,12 @@ class ProductController extends Controller
 
             // Unités
             'units' => 'required|array|min:1',
-            'units.*.id' => 'required|exists:units,id',
-            'units.*.value' => 'required|numeric|min:0',
+            'units.*' => 'required|exists:units,id',
 
             // Autres champs
             'created_by' => 'required|exists:users,id'
         ]);
+        dd("here");
 
         DB::beginTransaction();
         try {
