@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ProductUnit extends Model
 {
     use HasFactory;
+    protected $table = 'product_units';
+
 
     protected $fillable = ['product_id', 'unit_id', 'value'];
 

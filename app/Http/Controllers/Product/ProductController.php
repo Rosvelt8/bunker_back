@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Product;
 use App\Http\Controllers\Controller;
 use App\Models\SubCategory;
 use App\Models\Product;
+use App\Models\ProductSubCategory;
 use App\Models\SalerProduct;
+use App\Models\ProductUnit;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +20,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['subCategory'])->with(['cities'])->get();
+        $products = Product::with(['subCategories'])->with(['cities'])->get();
         return response()->json($products);
     }
 
@@ -153,6 +155,9 @@ class ProductController extends Controller
             ],
             'price' => 'required|numeric|min:0|max:1000000',
             'quantity' => 'required|numeric|min:1|max:1000000',
+            'delay_promo' => 'numeric|min:1|max:1000000',
+            'delay' => 'numeric|min:1|max:1000000',
+            'coefficient' => 'required|numeric|min:1|max:1000000',
 
             // Image
             'image' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
@@ -162,14 +167,14 @@ class ProductController extends Controller
             'subCategories' => 'required|array|min:1',
             'subCategories.*' => 'exists:sub_categories,id',
 
-            // Unités
             'units' => 'required|array|min:1',
-            'units.*' => 'required|exists:units,id',
+            'units.*.id' => ['required', 'exists:units,id'],
+            'units.*.price' => ['required', 'numeric', 'min:0', 'max:1000000'],
 
             // Autres champs
             'created_by' => 'required|exists:users,id'
         ]);
-        dd("here");
+        // dd(request()->all());
 
         DB::beginTransaction();
         try {
@@ -197,24 +202,34 @@ class ProductController extends Controller
             $productData['images'] = count($additionalImagesUrls) > 0 ? json_encode($additionalImagesUrls) : null;
             $product = Product::create($productData);
 
-            // 4. Sous-catégories
-            $product->subCategories()->attach($request->subCategories);
-            foreach ($request->subCategories as $subCatId) {
-                SubCategory::where('id', $subCatId)->increment('countProduct');
+            // 4. Création des relations produit-unité pour chaque unité
+            foreach ($request->units as $unit) {
+                ProductUnit::create([
+                    'product_id' => $product->id,
+                    'unit_id' => $unit['id'],
+                    'value' => $unit['price']
+                ]);
+            }
+
+            foreach ($request->subCategories as $subCategory) {
+                ProductSubCategory::create([
+                    'product_id' => $product->id,
+                    'sub_category_id' => $subCategory,
+                ]);
             }
 
             // 5. Unités avec valeur
             $unitValues = [];
-            foreach ($request->units as $unit) {
-                $unitValues[$unit['id']] = ['value' => $unit['value']];
-            }
-            $product->units()->attach($unitValues);
+            // foreach ($request->units as $unit) {
+            //     $unitValues[$unit['id']] = ['value' => $unit['price']];
+            // }
+            // $product->units()->attach($unitValues);
 
             DB::commit();
 
             return response()->json([
                 'message' => 'Produit créé avec succès',
-                'product' => $product->load(['subCategories', 'units'])
+                'product' => $product
             ], 201);
 
         } catch (\Exception $e) {
