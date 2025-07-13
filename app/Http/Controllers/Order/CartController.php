@@ -27,10 +27,12 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'unit_id' => 'required|exists:units,id',
             'quantity' => 'required|integer|min:1',
         ]);
         $cartItem = CartItem::where('user_id', $request->user()->id)
         ->where('product_id', $request->product_id)
+        ->where('unit_id', $request->unit_id)
         ->first();
 
 
@@ -41,6 +43,7 @@ class CartController extends Controller
             $cartItem = CartItem::create([
                 'user_id' => $request->user()->id,
                 'product_id' => $request->product_id,
+                'unit_id' => $request->unit_id,
                 'quantity' => $request->quantity,
             ]);
         }
@@ -55,10 +58,12 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'unit_id' => 'required|exists:units,id',
         ]);
 
         $cartItem = CartItem::where('user_id', $request->user()->id)
                             ->where('product_id', $request->product_id)
+                            ->where('unit_id', $request->unit_id)
                             ->first();
 
         if ($cartItem) {
@@ -94,7 +99,7 @@ class CartController extends Controller
         $totalPrice = 0;
         $deliveryCost = 0;
         foreach ($cartItems as $item) {
-            $totalPrice += $item->product->price * $item->quantity;
+            $totalPrice += $item->unit->value * $item->quantity;
         }
 
         if($request->delivery){
@@ -199,7 +204,7 @@ class CartController extends Controller
                     if($order->status == 'in_delivery'){
                         $order->status = 'booked';
                         addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." a été payée en totalité avec succès");
-                    
+
                     }
                     $order->amount_paid+=$payment->amount;
                     $order->save();
@@ -236,24 +241,24 @@ class CartController extends Controller
 
         $order = Order::find($request->order_id);
         addNotification($order->user_id, "Votre commande ". $order->getOrderNumberAttribute() ." est en attente du premier paiement");
-        
-        
+
+
         if ($order->status !== 'unpaid') {
             return response()->json(['message' => 'Order is not unpaid'], 400);
         }
-        
+
         $payment = Payment::where('order_id', $order->idorder)->first();
-        
+
         $paymentResult = $this->paymentService->processPayment($payment->amount, "Paiement de la commande", 'XAF', [
             'verify' => false, // Disable SSL verification
         ]);
-        
+
         if ($paymentResult['status'] !== 'success') {
             return response()->json(['message' => 'Payment failed', 'error' => $paymentResult['message']], 400);
         }
         $order->status = 'on_hold';
         $order->save();
-        
+
         $payment->transaction_id = $paymentResult['transaction_reference'];
         $payment->save();
 

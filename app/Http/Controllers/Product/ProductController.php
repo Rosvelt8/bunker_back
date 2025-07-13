@@ -20,7 +20,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['subCategories'])->with(['cities'])->get();
+        $products = Product::with(['subCategories'])->with(['cities','units'])->get();
         return response()->json($products);
     }
 
@@ -135,7 +135,7 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with(['subcategory'])->with(['cities'])->find($id);
+        $product = Product::with(['subCategories'])->with(['cities','units'])->find($id);
         if($product){
 
             $product->total_quantity = $product->total_quantity; // Ensure total_quantity is calculated
@@ -585,7 +585,7 @@ class ProductController extends Controller
     {
         try {
             // Récupérer les produits liés au vendeur
-            $salerProducts = SalerProduct::with(['product.subcategory'])
+            $salerProducts = SalerProduct::with(['product.subCategories'])
                 ->where('saler_id', $saler_id)
                 ->get();
 
@@ -613,7 +613,7 @@ class ProductController extends Controller
     {
         try {
             // Récupérer les produits liés au vendeur
-            $products = Product::where('subCategory', $sub_category_id)->with(['subCategory'])->get();
+            $products = Product::where('subCategory', $sub_category_id)->with(['subCategories'])->get();
 
             if ($products->isEmpty()) {
                 return response()->json([
@@ -637,21 +637,21 @@ class ProductController extends Controller
 
     public function listTop3SellingProducts()
     {
-        $topSellingProducts = Product::orderBy('salesCount', 'desc')->with(['subCategory'])->take(3)->get();
+        $topSellingProducts = Product::orderBy('salesCount', 'desc')->with(['subCategories'])->take(3)->get();
 
         return response()->json($topSellingProducts);
     }
 
     public function listTopSellingProducts()
     {
-        $topSellingProducts = Product::orderBy('salesCount', 'desc')->with(['subCategory'])->take(8)->get();
+        $topSellingProducts = Product::orderBy('salesCount', 'desc')->with(['subCategories'])->take(8)->get();
 
         return response()->json($topSellingProducts);
     }
 
     public function listPromotedProducts()
     {
-        $promotedProducts = Product::where('isPromoted', true)->with(['subCategory'])->get();
+        $promotedProducts = Product::where('isPromoted', true)->with(['subCategories'])->get();
 
         return response()->json($promotedProducts);
     }

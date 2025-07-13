@@ -11,7 +11,7 @@ class Product extends Model
 
     protected $fillable = [
         'name', 'price', 'quantity', 'originalPrice', 'discountedPrice', 'discount',
-        'isPromoted', 'image', 'images', 'description', 'delay', 'delay_promo','coefficient', 
+        'isPromoted', 'image', 'images', 'description', 'delay', 'delay_promo','coefficient',
         'brand', 'model', 'storage', 'sizes', 'colors', 'material',
         'dimensions', 'weight', 'sportType', 'level', 'rate',
         'isNew', 'salesCount', 'inStock', 'arrivalDate', 'created_by'
@@ -54,7 +54,7 @@ class Product extends Model
      */
     public function units()
     {
-        return $this->belongsToMany(Unit::class, 'product_unit', 'product_id', 'unit_id')->withPivot('value');
+        return $this->belongsToMany(Unit::class, 'product_units', 'product_id', 'unit_id')->withPivot('value');
     }
 
     public function cities()
